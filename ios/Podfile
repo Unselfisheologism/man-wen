@@ -1,0 +1,11 @@
+platform :ios, '13.0'
+
+target 'ManWen' do
+  use_frameworks!
+
+  # Superwall payments
+  pod 'SuperwallKit'
+
+  # Core ML utilities
+  pod 'CoreMLUtils'
+end
