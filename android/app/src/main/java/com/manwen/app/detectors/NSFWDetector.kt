@@ -16,7 +16,7 @@ class NSFWDetector private constructor() {
         const val MODEL_NAME = "nsfw_model.tflite"
         const val INPUT_SIZE = 224
         const val NUM_CLASSES = 5
-        const val LABEL_NSFW = listOf("Drawing", "Hentai", "Neutral", "Porn", "Sexy")
+        val LABEL_NSFW = listOf("Drawing", "Hentai", "Neutral", "Porn", "Sexy")
 
         // Confidence thresholds
         const val THRESHOLD_DEFAULT = 0.75f

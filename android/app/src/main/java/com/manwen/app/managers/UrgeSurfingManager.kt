@@ -15,7 +15,7 @@ class UrgeSurfingManager(private val context: Context) {
         object Idle : SessionState()
         data class Active(val startTime: Long, val initialUrge: Int, val technique: String) : SessionState()
         data class Completed(val durationSeconds: Int, val finalUrge: Int?) : SessionState()
-        data class Cancelled : SessionState()
+        data class Cancelled(val message: String = "Session cancelled") : SessionState()
     }
 
     // Breathing exercise: 4s inhale, 7s hold, 8s exhale (4-7-8)
