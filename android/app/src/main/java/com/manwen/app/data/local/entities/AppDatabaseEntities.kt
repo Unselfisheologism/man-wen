@@ -28,18 +28,6 @@ data class DailyCheckIn(
     val completed: Boolean = false
 )
 
-@Entity(tableName = "nsfw_events")
-data class NSFWEvent(
-    @PrimaryKey val id: String = UUID.randomUUID().toString(),
-    val timestamp: Long,
-    val packageName: String,
-    val appName: String,
-    val confidenceScore: Float,
-    val topClass: String,
-    val wasBlocked: Boolean,
-    val userDismissed: Boolean = false
-)
-
 @Entity(tableName = "urge_surfing_sessions")
 data class UrgeSurfingSession(
     @PrimaryKey val id: String = UUID.randomUUID().toString(),

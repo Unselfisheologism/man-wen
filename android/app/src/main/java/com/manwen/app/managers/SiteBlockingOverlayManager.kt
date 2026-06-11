@@ -85,7 +85,7 @@ class SiteBlockingOverlayManager private constructor() {
 
                 // Description
                 val description = TextView(context).apply {
-                    text = "Man Wen has blocked access to:\n\n$siteName\n\nThis site contains adult/NSFW content that you've chosen to avoid."
+                    text = "Man Wen has blocked access to:\n\n$siteName\n\nThis site contains content that you've chosen to avoid."
                     textSize = 18f
                     setTextColor(Color.parseColor("#333333"))
                     gravity = Gravity.CENTER

@@ -24,9 +24,6 @@ interface UserProgressDao {
     @Query("UPDATE user_progress SET totalRelapses = totalRelapses + 1, currentStreak = 0, lastRelapseDate = :relapseDate WHERE id = :id")
     suspend fun recordRelapse(id: String, relapseDate: Long = System.currentTimeMillis())
 
-    @Query("UPDATE user_progress SET nsfwBlocksCount = nsfwBlocksCount + 1 WHERE id = :id")
-    suspend fun incrementNSFWBlocks(id: String)
-
     @Query("UPDATE user_progress SET urgeSurfingSessions = urgeSurfingSessions + 1 WHERE id = :id")
     suspend fun incrementUrgeSurfingSessions(id: String)
 

@@ -11,9 +11,6 @@ private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(na
 
 class PreferencesManager(private val context: Context) {
 
-    val nsfwBlockingEnabled: Flow<Boolean> = context.dataStore.data
-        .map { it[AppPreferencesKeys.NSFW_BLOCKING_ENABLED] ?: false }
-
     val blockingSensitivity: Flow<Float> = context.dataStore.data
         .map { it[AppPreferencesKeys.BLOCKING_SENSITIVITY] ?: 0.75f }
 
@@ -28,10 +25,6 @@ class PreferencesManager(private val context: Context) {
 
     val onboardingComplete: Flow<Boolean> = context.dataStore.data
         .map { it[AppPreferencesKeys.ONBOARDING_COMPLETE] ?: false }
-
-    suspend fun setNsfwBlockingEnabled(enabled: Boolean) {
-        context.dataStore.edit { it[AppPreferencesKeys.NSFW_BLOCKING_ENABLED] = enabled }
-    }
 
     suspend fun setBlockingSensitivity(sensitivity: Float) {
         context.dataStore.edit { it[AppPreferencesKeys.BLOCKING_SENSITIVITY] = sensitivity }

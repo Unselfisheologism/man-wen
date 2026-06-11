@@ -13,16 +13,6 @@ class MainActivity: FlutterActivity() {
         super.configureFlutterEngine(flutterEngine)
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, channel).setMethodCallHandler { call, result ->
             when (call.method) {
-                "startMonitoring" -> {
-                    // Legacy NSFW method - now starts site blocking instead
-                    SiteBlockerService.start(this as Context)
-                    result.success(true)
-                }
-                "stopMonitoring" -> {
-                    // Legacy NSFW method - now stops site blocking
-                    SiteBlockerService.stop(this as Context)
-                    result.success(true)
-                }
                 "startSiteBlocking" -> {
                     SiteBlockerService.start(this as Context)
                     result.success(true)

@@ -3,7 +3,6 @@ package com.manwen.app.data.preferences
 import androidx.datastore.preferences.core.*
 
 object AppPreferencesKeys {
-    val NSFW_BLOCKING_ENABLED = booleanPreferencesKey("nsfw_blocking_enabled")
     val BLOCKING_SENSITIVITY = floatPreferencesKey("blocking_sensitivity")
     val DANGER_HOURS_START = intPreferencesKey("danger_hours_start")
     val DANGER_HOURS_END = intPreferencesKey("danger_hours_end")

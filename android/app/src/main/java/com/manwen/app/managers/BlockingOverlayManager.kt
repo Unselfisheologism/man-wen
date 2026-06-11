@@ -59,7 +59,7 @@ class BlockingOverlayManager(private val context: Context) {
         hideBlock() // Ensure clean slate
 
         val confidence = intent.getFloatExtra(EXTRA_CONFIDENCE, 0f)
-        val className = intent.getStringExtra(EXTRA_CLASS_NAME) ?: "NSFW Content"
+        val className = intent.getStringExtra(EXTRA_CLASS_NAME) ?: "Blocked Content"
 
         val layoutParams = WindowManager.LayoutParams().apply {
             type = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

@@ -11,7 +11,6 @@ class AppAnalytics(private val analyticsDao: AnalyticsDao) {
 
     companion object {
         const val EVENT_APP_OPENED = "app_opened"
-        const val EVENT_NSFW_BLOCKED = "nsfw_blocked"
         const val EVENT_STREAK_UPDATED = "streak_updated"
         const val EVENT_URGE_SURFING_STARTED = "urge_surfing_started"
         const val EVENT_DAILY_CHECKIN_COMPLETED = "daily_checkin_completed"
@@ -32,13 +31,6 @@ class AppAnalytics(private val analyticsDao: AnalyticsDao) {
             )
             analyticsDao.insertEvent(event)
         }
-    }
-
-    fun trackNSFWBlocked(confidence: Float, packageName: String) {
-        track(EVENT_NSFW_BLOCKED, mapOf(
-            "confidence" to confidence.toString(),
-            "package" to packageName
-        ))
     }
 
     fun trackStreakUpdated(days: Int) {

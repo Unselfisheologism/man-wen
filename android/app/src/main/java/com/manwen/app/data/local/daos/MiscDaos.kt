@@ -1,30 +1,8 @@
 package com.manwen.app.data.local.daos
 
 import androidx.room.*
-import com.manwen.app.data.local.entities.NSFWEvent
 import com.manwen.app.data.local.entities.LocalAnalyticsEvent
 import kotlinx.coroutines.flow.Flow
-
-@Dao
-interface NSFWEventDao {
-    @Query("SELECT * FROM nsfw_events ORDER BY timestamp DESC LIMIT 1")
-    fun getLatestEvent(): Flow<NSFWEvent?>
-
-    @Query("SELECT * FROM nsfw_events ORDER BY timestamp DESC LIMIT 100")
-    fun getRecentEvents(): Flow<List<NSFWEvent>>
-
-    @Query("SELECT * FROM nsfw_events WHERE wasBlocked = 1 ORDER BY timestamp DESC LIMIT 100")
-    fun getBlockedEvents(): Flow<List<NSFWEvent>>
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertEvent(event: NSFWEvent)
-
-    @Query("DELETE FROM nsfw_events WHERE timestamp < :cutoff")
-    suspend fun deleteOlderThan(cutoff: Long)
-
-    @Query("SELECT COUNT(*) FROM nsfw_events WHERE wasBlocked = 1 AND timestamp > :since")
-    suspend fun getBlockCountSince(since: Long): Int
-}
 
 @Dao
 interface UrgeSurfingDao {
