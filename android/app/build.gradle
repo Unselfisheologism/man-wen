@@ -72,7 +72,7 @@ android {
 dependencies {
     // Room
     implementation "androidx.room:room-runtime:2.6.1"
-    annotationProcessor "androidx.room:room-compiler:2.6.1"
+    kapt "androidx.room:room-compiler:2.6.1"
 
     // DataStore
     implementation "androidx.datastore:datastore-preferences:1.0.0"
@@ -87,7 +87,6 @@ dependencies {
     implementation "androidx.activity:activity-ktx:1.7.2"
 
     // Flutter plugin
-    implementation platform('flutter')
     implementation "com.flutter/flutter_plugin_android_monthly:2.0.0"
 
     // Material Design
