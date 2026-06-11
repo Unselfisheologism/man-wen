@@ -65,9 +65,9 @@ class AppAnalytics(private val analyticsDao: AnalyticsDao) {
     }
 
     private fun jsonFromMap(map: Map<String, String>): String {
-        val entries = map.entries.joinToString(",") { ""${'"'}$it.key${'"'}:${'"'}$it.value${'"'}"" }
-        return "{${entries}}"
-    }
+            val entries = map.entries.joinToString(",") { "\"${it.key}\":\"${it.value}\"" }
+            return "{${entries}}"
+        }
 
     private fun jsonFromList(list: List<LocalAnalyticsEvent>): String {
         val items = list.joinToString(",") { e ->

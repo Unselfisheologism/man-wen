@@ -29,17 +29,17 @@ class PrivacyManager(private val context: Context) {
         }
 
         val executor = ContextCompat.getMainExecutor(activity)
-        val biometricPrompt = BiometricPrompt(activity, executor,
-            object : BiometricPrompt.AuthenticationCallback() {
-                override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
-                    onSuccess()
-                }
-                override fun onAuthenticationFailed() {}
-                override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
-                    onError(errString.toString())
-                }
-            }
-        )
+                val biometricPrompt = BiometricPrompt(activity as FragmentActivity, executor,
+                    object : BiometricPrompt.AuthenticationCallback() {
+                        override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                            onSuccess()
+                        }
+                        override fun onAuthenticationFailed() {}
+                        override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
+                            onError(errString.toString())
+                        }
+                    }
+                )
 
         val promptInfo = BiometricPrompt.PromptInfo.Builder()
             .setTitle("Unlock Man Wen")

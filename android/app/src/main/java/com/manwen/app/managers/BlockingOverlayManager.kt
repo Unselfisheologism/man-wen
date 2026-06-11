@@ -4,9 +4,19 @@ import android.app.ActivityManager
 import android.app.Service
 import android.content.Context
 import android.content.Intent
-import android.graphics.*
+import android.graphics.Bitmap
+import android.graphics.BlurMaskFilter
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.ColorDrawable
+import android.graphics.Paint
+import android.graphics.drawable.Drawable
 import android.os.Build
-import android.view.*
+import android.view.Gravity
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.ImageView
 import androidx.core.content.getSystemService
 import com.manwen.app.R
@@ -130,11 +140,12 @@ class BlockingOverlayManager(private val context: Context) {
 
         // Dark blur background
         val blurRadius = 20f
-        valDownsampleFactor = 8
+        val downsampleFactor = 8
 
         // Apply blur to background
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            rootLayout.background = BlurMaskFilter(blurRadius, BlurMaskFilter.Blur.NORMAL)
+            // Create a Drawable with blur effect
+            rootLayout.background = createBlurredBackground(blurRadius)
         } else {
             rootLayout.setBackgroundColor(Color.parseColor("#CC000000"))
         }
@@ -155,5 +166,11 @@ class BlockingOverlayManager(private val context: Context) {
     fun cleanup() {
         hideBlock()
         windowManager = null
+    }
+
+    private fun createBlurredBackground(blurRadius: Float): Drawable {
+        // Create a simple colored drawable for now
+        // TODO: Implement proper blur effect using RenderScript or other API
+        return ColorDrawable(Color.parseColor("#80000000"))
     }
 }

@@ -3,17 +3,15 @@ package com.manwen.app.data.local
 import android.content.Context
 import androidx.room.*
 import com.manwen.app.data.local.entities.AppDatabaseEntities
-import net.sqlcipher.database.SQLiteDatabase
-import net.sqlcipher.database.SupportFactory
 
 @Database(
     entities = [
-        AppDatabaseEntities.UserProgress::class,
-        AppDatabaseEntities.DailyCheckIn::class,
-        AppDatabaseEntities.NSFWEvent::class,
-        AppDatabaseEntities.UrgeSurfingSession::class,
-        AppDatabaseEntities.ManagedApp::class,
-        AppDatabaseEntities.LocalAnalyticsEvent::class,
+        UserProgress::class,
+        DailyCheckIn::class,
+        NSFWEvent::class,
+        UrgeSurfingSession::class,
+        ManagedApp::class,
+        LocalAnalyticsEvent::class,
     ],
     version = 1,
     exportSchema = false
@@ -32,16 +30,6 @@ abstract class AppDatabase : RoomDatabase() {
 
         fun getInstance(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
-                val masterKey = androidx.room.room.RoomDatabase.Builder(context, AppDatabase::class.java, "man_wen_db")
-                // For encrypted DB with SQLCipher, use:
-                // val passphrase = SQLiteDatabase.getBytes("man_wen_encryption_key".toCharArray())
-                // val factory = SupportFactory(passphrase)
-                // val instance = Room.databaseBuilder(context, AppDatabase::class.java, "man_wen_db")
-                //     .openHelperFactory(factory)
-                //     .fallbackToDestructiveMigration()
-                //     .build()
-
-                // Unencrypted:
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     AppDatabase::class.java,

@@ -1,5 +1,6 @@
 package com.manwen.app
 
+import android.content.Context
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
@@ -14,20 +15,20 @@ class MainActivity: FlutterActivity() {
             when (call.method) {
                 "startMonitoring" -> {
                     // Legacy NSFW method - now starts site blocking instead
-                    SiteBlockerService.start(this)
+                    SiteBlockerService.start(this as Context)
                     result.success(true)
                 }
                 "stopMonitoring" -> {
                     // Legacy NSFW method - now stops site blocking
-                    SiteBlockerService.stop(this)
+                    SiteBlockerService.stop(this as Context)
                     result.success(true)
                 }
                 "startSiteBlocking" -> {
-                    SiteBlockerService.start(this)
+                    SiteBlockerService.start(this as Context)
                     result.success(true)
                 }
                 "stopSiteBlocking" -> {
-                    SiteBlockerService.stop(this)
+                    SiteBlockerService.stop(this as Context)
                     result.success(true)
                 }
                 "openPaywall" -> {
