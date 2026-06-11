@@ -87,7 +87,7 @@ dependencies {
     implementation "androidx.activity:activity-ktx:1.7.2"
 
     // Flutter plugin
-    implementation "com.flutter/flutter_plugin_android_monthly:2.0.0"
+    implementation "com.flutter:flutter:2.11.0"
 
     // Material Design
     implementation "com.google.android.material:material:1.12.0"
