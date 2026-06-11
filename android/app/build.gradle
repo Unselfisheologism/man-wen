@@ -66,12 +66,6 @@ android {
 }
 
 // Apply Flutter plugin
-allprojects {
-    repositories {
-        google()
-        mavenCentral()
-    }
-}
 
 // Flutter dependencies
 
