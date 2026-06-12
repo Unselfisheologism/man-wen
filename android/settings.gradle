@@ -1,14 +1,11 @@
-// Compute Flutter SDK path once (needed in pluginManagement and for pub get)
-def getFlutterSdkPath() {
-    def properties = new Properties()
-    file("local.properties").withInputStream { properties.load(it) }
-    def sdk = properties.getProperty("flutter.sdk")
-    assert sdk != null, "flutter.sdk not set in local.properties"
-    return sdk
-}
-
 pluginManagement {
-    def flutterSdkPath = getFlutterSdkPath()
+    def flutterSdkPath = {
+        def properties = new Properties()
+        file("local.properties").withInputStream { properties.load(it) }
+        def flutterSdkPath = properties.getProperty("flutter.sdk")
+        assert flutterSdkPath != null, "flutter.sdk not set in local.properties"
+        return flutterSdkPath
+    }()
 
     includeBuild("$flutterSdkPath/packages/flutter_tools/gradle")
 
@@ -16,18 +13,6 @@ pluginManagement {
         google()
         mavenCentral()
         gradlePluginPortal()
-    }
-}
-
-// Ensure Flutter dependencies are fetched (generates .flutter-plugins-dependencies)
-def pubGetMarker = new File(rootDir.parentFile, ".flutter-plugins-dependencies")
-if (!pubGetMarker.exists()) {
-    logger.lifecycle("Running flutter pub get...")
-    def sdk = getFlutterSdkPath()
-    def process = ["$sdk/bin/flutter", "pub", "get"].execute(null, rootDir.parentFile)
-    process.waitFor()
-    if (process.exitValue() != 0) {
-        logger.warn("flutter pub get failed (${process.exitValue()}): ${process.errorStream.text}")
     }
 }
 
