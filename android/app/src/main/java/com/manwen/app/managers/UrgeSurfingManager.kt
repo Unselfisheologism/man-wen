@@ -53,7 +53,7 @@ class UrgeSurfingManager(private val context: Context) {
     fun cancelSession() {
         timer?.cancel()
         timer = null
-        _sessionState.value = SessionState.Cancelled
+        _sessionState.value = SessionState.Cancelled()
     }
 
     fun cleanup() {

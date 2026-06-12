@@ -1,11 +1,11 @@
 plugins {
-    id 'com.android.application'
-    id 'org.jetbrains.kotlin.android'
-    id 'kotlin-kapt'
+    id "com.android.application"
+    id "kotlin-android"
+    id "dev.flutter.flutter-gradle-plugin"
 }
 
 android {
-    namespace 'com.manwen.app'
+    namespace "com.manwen.app"
     compileSdk 34
 
     def keystorePropertiesFile = rootProject.file("keystore.properties")
@@ -21,8 +21,8 @@ android {
                 def storePassword = keystoreProperties.getProperty('storePassword')
                 def keyAlias = keystoreProperties.getProperty('keyAlias')
                 def keyPassword = keystoreProperties.getProperty('keyPassword')
-                
-                if (storeFilePath != null && storeFilePath.trim() != '' && 
+
+                if (storeFilePath != null && storeFilePath.trim() != '' &&
                     storePassword != null && storePassword.trim() != '' &&
                     keyAlias != null && keyAlias.trim() != '' &&
                     keyPassword != null && keyPassword.trim() != '') {
@@ -65,9 +65,9 @@ android {
     kotlinOptions { jvmTarget = '1.8' }
 }
 
-// Apply Flutter plugin
-
-// Flutter dependencies
+flutter {
+    source = "../.."
+}
 
 dependencies {
     // Room
@@ -86,6 +86,9 @@ dependencies {
 
     // Activity KTX
     implementation "androidx.activity:activity-ktx:1.7.2"
+
+    // Fragment (needed for FragmentActivity)
+    implementation "androidx.fragment:fragment-ktx:1.6.2"
 
     // Material Design
     implementation "com.google.android.material:material:1.12.0"

@@ -26,7 +26,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   _OnboardPage(
                     icon: Icons.shield,
                     title: 'Realtime Protection',
-                    body: 'Activates the Android Accessibility Service to visually detect and block NSFW screens before you react.',
+                    body: 'Blocks thousands of adult and NSFW websites at the network level — no visual detection needed.',
                   ),
                   _OnboardPage(
                     icon: Icons.timeline,

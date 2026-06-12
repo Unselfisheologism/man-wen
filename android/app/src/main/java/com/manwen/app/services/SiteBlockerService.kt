@@ -267,8 +267,9 @@ class SiteBlockerService : VpnService() {
                           (packet.get(21).toInt() and 0xFF)
             
             if (destPort == 53) {
+                val packetLen = packet.limit()
                 // Try to extract domain from DNS query
-                val domain = extractDnsDomain(packet, length)
+                val domain = extractDnsDomain(packet, packetLen)
                 if (domain != null && isDomainBlocked(domain)) {
                     Log.i(TAG, "Blocking: $domain")
                     // Send blocking response or just drop
