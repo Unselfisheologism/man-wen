@@ -10,6 +10,28 @@ buildscript {
     }
 }
 
+// Generate .flutter-plugins-dependencies before Flutter plugin reads it
+def pubGetMarker = new File(rootProject.projectDir.parentFile, ".flutter-plugins-dependencies")
+if (!pubGetMarker.exists()) {
+    logger.lifecycle(">>> Running flutter pub get to generate plugin deps...")
+    try {
+        def localProps = new Properties()
+        rootProject.file("local.properties").withInputStream { localProps.load(it) }
+        def sdk = localProps.getProperty("flutter.sdk")
+        if (sdk != null) {
+            def proc = ["$sdk/bin/flutter", "pub", "get"].execute(null, rootProject.projectDir.parentFile)
+            proc.waitFor()
+            if (proc.exitValue() != 0) {
+                logger.warn(">>> flutter pub get failed: ${proc.errorStream.text}")
+            } else {
+                logger.lifecycle(">>> flutter pub get succeeded")
+            }
+        }
+    } catch (Exception e) {
+        logger.warn(">>> flutter pub get error: ${e.message}")
+    }
+}
+
 allprojects {
     repositories {
         google()
