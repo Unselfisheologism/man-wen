@@ -21,11 +21,11 @@ plugins {
 }
 
 // Compile stub for com.android.build.OutputFile (removed in AGP 8.x, needed by Flutter 3.22)
-def stubsDir = new File(rootDir, "buildscript-stubs")
+def stubsDir = new File(rootDir, "agp-stubs")
 def classesDir = new File(stubsDir, "classes")
 def marker = new File(classesDir, "com/android/build/OutputFile.class")
 if (!marker.exists()) {
-    def srcFile = new File(stubsDir, "src/com/android/build/OutputFile.java")
+    def srcFile = new File(stubsDir, "OutputFile.java")
     classesDir.mkdirs()
     logger.lifecycle(">>> Compiling OutputFile stub...")
     def javac = ["javac", "-d", classesDir.absolutePath, srcFile.absolutePath].execute()

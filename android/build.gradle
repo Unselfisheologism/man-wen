@@ -8,7 +8,7 @@ buildscript {
         classpath 'com.android.tools.build:gradle:8.1.0'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         // Provide com.android.build.OutputFile stub (removed in AGP 8.x, needed by Flutter 3.22)
-        classpath fileTree(dir: 'buildscript-stubs/classes', include: ['**/*.class'])
+        classpath fileTree(dir: 'agp-stubs/classes', include: ['**/*.class'])
     }
 }
 
