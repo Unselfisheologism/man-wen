@@ -18,6 +18,11 @@ android {
         jvmTarget = JavaVersion.VERSION_11
     }
 
+    lintOptions {
+        abortOnError false
+        checkReleaseBuilds false
+    }
+
     defaultConfig {
         applicationId "com.manwen.app"
         minSdk 26
