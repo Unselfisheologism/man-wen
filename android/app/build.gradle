@@ -122,8 +122,8 @@ def flutterEngineVersion = getFlutterEngineVersion()
      implementation "androidx.core:core-ktx:1.13.1"
      implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.8.4"
 
-     // Explicit Flutter embedding dependency (Gradle dedupes with Flutter plugin)
+     // Explicit Flutter embedding dependency (compileOnly — Flutter plugin provides at runtime)
      if (flutterEngineVersion != null && !flutterEngineVersion.isEmpty()) {
-         implementation "io.flutter:flutter_embedding_release:1.0.0-$flutterEngineVersion"
+         compileOnly "io.flutter:flutter_embedding_release:1.0.0-$flutterEngineVersion"
      }
  }
