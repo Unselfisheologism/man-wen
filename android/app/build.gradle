@@ -7,24 +7,23 @@ plugins {
 
 android {
     namespace "com.manwen.app"
-    compileSdk flutter.compileSdkVersion
-    ndkVersion flutter.ndkVersion
+    compileSdk 34
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
     }
 
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_1_8
+        jvmTarget = JavaVersion.VERSION_11
     }
 
     defaultConfig {
         applicationId "com.manwen.app"
         minSdk 26
-        targetSdk flutter.targetSdkVersion
-        versionCode flutter.versionCode
-        versionName flutter.versionName
+        targetSdk 34
+        versionCode 1
+        versionName "1.0.0"
         ndk { abiFilters "armeabi-v7a", "arm64-v8a", "x86", "x86_64" }
     }
 
