@@ -11,7 +11,7 @@ buildscript {
 }
 
 // Ensure Flutter dependencies are fetched (generates .flutter-plugins-dependencies)
-def pubGetMarker = new File(rootProject.parent, ".flutter-plugins-dependencies")
+def pubGetMarker = new File(rootProject.projectDir.parentFile, ".flutter-plugins-dependencies")
 if (!pubGetMarker.exists()) {
     logger.lifecycle("Running flutter pub get (plugin deps missing)...")
     try {
@@ -19,7 +19,7 @@ if (!pubGetMarker.exists()) {
         rootProject.file("local.properties").withInputStream { localProps.load(it) }
         def sdk = localProps.getProperty("flutter.sdk")
         if (sdk != null) {
-            def process = ["$sdk/bin/flutter", "pub", "get"].execute(null, rootProject.parent)
+            def process = ["$sdk/bin/flutter", "pub", "get"].execute(null, rootProject.projectDir.parentFile)
             process.waitFor()
             if (process.exitValue() != 0) {
                 logger.warn("flutter pub get failed: ${process.errorStream.text}")
