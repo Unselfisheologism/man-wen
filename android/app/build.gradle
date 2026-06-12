@@ -71,6 +71,33 @@ flutter {
     source = "../.."
 }
 
+// Read Flutter engine version from SDK so we can add the embedding explicitly
+def getFlutterEngineVersion() {
+    try {
+        def localProps = new Properties()
+        rootProject.file("local.properties").withInputStream {
+            localProps.load(it)
+        }
+        def flutterSdk = localProps.getProperty("flutter.sdk")
+        if (flutterSdk == null || flutterSdk.trim().isEmpty()) return null
+
+        def versionFile = file("$flutterSdk/bin/cache/engineVersion")
+        if (!versionFile.exists()) versionFile = file("$flutterSdk/bin/cache/engine.stamp")
+        if (!versionFile.exists()) versionFile = file("$flutterSdk/bin/internal/engine.version")
+        if (!versionFile.exists()) return null
+
+        return versionFile.text.trim()
+    } catch (Exception ignored) {
+        return null
+    }
+}
+
+def flutterEngineVersion = getFlutterEngineVersion()
+if (flutterEngineVersion != null && !flutterEngineVersion.isEmpty()) {
+    // Add explicit Flutter embedding dependency (Gradle dedupes with Flutter plugin)
+    implementation "io.flutter:flutter_embedding_release:1.0.0-$flutterEngineVersion"
+}
+
 dependencies {
     // Room
     implementation "androidx.room:room-runtime:2.6.1"
