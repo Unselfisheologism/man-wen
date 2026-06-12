@@ -21,17 +21,19 @@ plugins {
 }
 
 // Compile stub for com.android.build.OutputFile (removed in AGP 8.x, needed by Flutter 3.22)
-def stubsDir = new File(rootDir, "agp-stubs")
-def classesDir = new File(stubsDir, "classes")
-def marker = new File(classesDir, "com/android/build/OutputFile.class")
-if (!marker.exists()) {
-    def srcFile = new File(stubsDir, "OutputFile.java")
-    classesDir.mkdirs()
-    logger.lifecycle(">>> Compiling OutputFile stub...")
-    def javac = ["javac", "-d", classesDir.absolutePath, srcFile.absolutePath].execute()
-    javac.waitFor()
-    if (javac.exitValue() != 0) {
-        logger.warn(">>> javac failed: ${javac.errorStream.text}")
+// Also patch Flutter plugin source to remove OutputFile reference
+def flutterSdkStubs = {
+    def props = new Properties()
+    file("local.properties").withInputStream { props.load(it) }
+    return props.getProperty("flutter.sdk")
+}()
+def flutterGroovyFile = new File(flutterSdkStubs, "packages/flutter_tools/gradle/src/main/groovy/flutter.groovy")
+if (flutterGroovyFile.exists()) {
+    def content = flutterGroovyFile.text
+    // Replace OutputFile references (removed in AGP 8.x) with a compatible type
+    if (content.contains("com.android.build.OutputFile")) {
+        logger.lifecycle(">>> Patching flutter.groovy for AGP 8.x OutputFile compatibility...")
+        flutterGroovyFile.text = content.replaceAll("com\\.android\\.build\\.OutputFile", "Object")
     }
 }
 

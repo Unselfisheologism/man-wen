@@ -2,7 +2,6 @@
 .dart_tool/
 .packages
 build/
-!buildscript-stubs/**
 *.flutter-plugins
 *.flutter-plugins-dependencies
 *.iml
@@ -41,6 +40,3 @@ ios/ManWen.xcworkspace/xcshareddata/WorkspaceSettings.xcsettings
 .env
 .env.local
 android/app/src/main/assets/nsfw_model.tflite
-
-# AGP stub classes for Flutter plugin compatibility
-!agp-stubs/**
