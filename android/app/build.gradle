@@ -93,36 +93,37 @@ def getFlutterEngineVersion() {
 }
 
 def flutterEngineVersion = getFlutterEngineVersion()
-if (flutterEngineVersion != null && !flutterEngineVersion.isEmpty()) {
-    // Add explicit Flutter embedding dependency (Gradle dedupes with Flutter plugin)
-    implementation "io.flutter:flutter_embedding_release:1.0.0-$flutterEngineVersion"
-}
 
-dependencies {
-    // Room
-    implementation "androidx.room:room-runtime:2.6.1"
-    implementation "androidx.room:room-ktx:2.6.1"
-    kapt "androidx.room:room-compiler:2.6.1"
+ dependencies {
+     // Room
+     implementation "androidx.room:room-runtime:2.6.1"
+     implementation "androidx.room:room-ktx:2.6.1"
+     kapt "androidx.room:room-compiler:2.6.1"
 
-    // DataStore
-    implementation "androidx.datastore:datastore-preferences:1.0.0"
+     // DataStore
+     implementation "androidx.datastore:datastore-preferences:1.0.0"
 
-    // Billing
-    implementation "com.android.billingclient:billing:6.0.1"
+     // Billing
+     implementation "com.android.billingclient:billing:6.0.1"
 
-    // Biometrics
-    implementation "androidx.biometric:biometric:1.1.0"
+     // Biometrics
+     implementation "androidx.biometric:biometric:1.1.0"
 
-    // Activity KTX
-    implementation "androidx.activity:activity-ktx:1.7.2"
+     // Activity KTX
+     implementation "androidx.activity:activity-ktx:1.7.2"
 
-    // Fragment (needed for FragmentActivity)
-    implementation "androidx.fragment:fragment-ktx:1.6.2"
+     // Fragment (needed for FragmentActivity)
+     implementation "androidx.fragment:fragment-ktx:1.6.2"
 
-    // Material Design
-    implementation "com.google.android.material:material:1.12.0"
+     // Material Design
+     implementation "com.google.android.material:material:1.12.0"
 
-    // Core AndroidX libraries
-    implementation "androidx.core:core-ktx:1.13.1"
-    implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.8.4"
-}
+     // Core AndroidX libraries
+     implementation "androidx.core:core-ktx:1.13.1"
+     implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.8.4"
+
+     // Explicit Flutter embedding dependency (Gradle dedupes with Flutter plugin)
+     if (flutterEngineVersion != null && !flutterEngineVersion.isEmpty()) {
+         implementation "io.flutter:flutter_embedding_release:1.0.0-$flutterEngineVersion"
+     }
+ }
