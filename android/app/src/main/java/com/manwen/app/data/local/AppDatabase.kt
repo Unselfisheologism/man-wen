@@ -7,7 +7,21 @@ import com.manwen.app.data.local.entities.DailyCheckIn
 import com.manwen.app.data.local.entities.UrgeSurfingSession
 import com.manwen.app.data.local.entities.ManagedApp
 import com.manwen.app.data.local.entities.LocalAnalyticsEvent
+import org.json.JSONArray
 
+class Converters {
+    @TypeConverter
+    fun fromStringList(value: List<String>): String = JSONArray(value).toString()
+
+    @TypeConverter
+    fun toStringList(value: String): List<String> {
+        if (value.isBlank()) return emptyList()
+        val array = JSONArray(value)
+        return (0 until array.length()).map { array.getString(it) }
+    }
+}
+
+@TypeConverters(Converters::class)
 @Database(
     entities = [
         UserProgress::class,
