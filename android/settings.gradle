@@ -16,6 +16,10 @@ pluginManagement {
     }
 }
 
+plugins {
+    id "dev.flutter.flutter-gradle-plugin" version "1.0.0" apply false
+}
+
 // Compile stub for com.android.build.OutputFile (removed in AGP 8.x, needed by Flutter 3.22)
 def stubsDir = new File(rootDir, "buildscript-stubs")
 def classesDir = new File(stubsDir, "classes")
@@ -29,10 +33,6 @@ if (!marker.exists()) {
     if (javac.exitValue() != 0) {
         logger.warn(">>> javac failed: ${javac.errorStream.text}")
     }
-}
-
-plugins {
-    id "dev.flutter.flutter-gradle-plugin" version "1.0.0" apply false
 }
 
 rootProject.name = 'ManWen'
