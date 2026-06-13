@@ -155,7 +155,7 @@ class _SiteBlockerTileState extends State<_SiteBlockerTile> {
 }
 
 class _ActionTile extends StatelessWidget {
-  final IconData icon;
+  final Widget icon;
   final String title;
   final String subtitle;
   final VoidCallback onTap;
@@ -170,7 +170,7 @@ class _ActionTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading: Icon(icon),
+      leading: icon,
       title: Text(title),
       subtitle: Text(subtitle),
       onTap: onTap,
