@@ -23,7 +23,16 @@ class _SiteBlockerSettingsScreenState extends State<SiteBlockerSettingsScreen> {
   }
 
   Future<void> _loadSettings() async {
-    final enabled = await SiteBlockerService.isEnabled();
+    bool enabled = false;
+    try {
+      enabled = await SiteBlockerService.isEnabled();
+    } catch (_) {
+      // SharedPreferences can throw if the platform plugin response is
+      // malformed. Fall through with the default (disabled) so the user
+      // can still see and interact with the screen instead of being
+      // stuck on a spinner forever.
+    }
+    if (!mounted) return;
     setState(() {
       _isEnabled = enabled;
       _isLoading = false;

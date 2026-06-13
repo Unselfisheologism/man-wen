@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import '../services/preferences_service.dart';
 import '../services/site_blocker_service.dart';
 import '../widgets/streak_widget.dart';
 import '../widgets/progress_widget.dart';
 import 'site_blocker_settings_screen.dart';
+import 'coming_soon_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -22,12 +22,12 @@ class HomeScreen extends StatelessWidget {
           SliverToBoxAdapter(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const SizedBox(height: 16),
-                const StreakWidget(),
-                const SizedBox(height: 16),
-                const ProgressWidget(),
-                const SizedBox(height: 16),
+              children: const [
+                SizedBox(height: 16),
+                StreakWidget(),
+                SizedBox(height: 16),
+                ProgressWidget(),
+                SizedBox(height: 16),
                 _QuickActions(),
               ],
             ),
@@ -39,6 +39,8 @@ class HomeScreen extends StatelessWidget {
 }
 
 class _QuickActions extends StatelessWidget {
+  const _QuickActions();
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -50,19 +52,58 @@ class _QuickActions extends StatelessWidget {
             icon: Icons.air,
             title: 'Urge Surfing',
             subtitle: '4-7-8 breathing',
-            onTap: () {},
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const ComingSoonScreen(
+                    title: 'Urge Surfing',
+                    description: 'Guided 4-7-8 breathing, cold-shower timer, '
+                        'push-up challenge and walk reminders to ride out '
+                        'urges without acting on them.',
+                    icon: Icons.air,
+                  ),
+                ),
+              );
+            },
           ),
           _ActionTile(
             icon: Icons.notifications_active,
             title: 'Accountability',
             subtitle: 'Add partner',
-            onTap: () {},
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const ComingSoonScreen(
+                    title: 'Accountability Partner',
+                    description: 'Pair with a trusted person who gets a '
+                        'heads-up if you break your streak — the social '
+                        'cost makes relapsing much harder.',
+                    icon: Icons.notifications_active,
+                  ),
+                ),
+              );
+            },
           ),
           _ActionTile(
             icon: Icons.settings,
             title: 'Settings',
             subtitle: 'Danger hours, sensitivity',
-            onTap: () {},
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const ComingSoonScreen(
+                    title: 'Settings',
+                    description: 'Configure danger hours, blocking '
+                        'sensitivity, daily check-in reminders, and '
+                        'premium upgrade options.',
+                    icon: Icons.settings,
+                  ),
+                ),
+              );
+            },
           ),
         ],
       ),
@@ -71,6 +112,8 @@ class _QuickActions extends StatelessWidget {
 }
 
 class _SiteBlockerTile extends StatefulWidget {
+  const _SiteBlockerTile();
+
   @override
   State<_SiteBlockerTile> createState() => _SiteBlockerTileState();
 }
@@ -86,10 +129,20 @@ class _SiteBlockerTileState extends State<_SiteBlockerTile> {
   }
 
   Future<void> _loadStatus() async {
-    final enabled = await SiteBlockerService.isEnabled();
+    bool enabled = false;
+    int count = 0;
+    try {
+      enabled = await SiteBlockerService.isEnabled();
+      count = SiteBlockerService.getBlockedSiteCount();
+    } catch (_) {
+      // SharedPreferences can throw if the platform plugin response is
+      // malformed. Fall through with defaults — the tile will just show
+      // '0 sites available' until prefs work.
+    }
+    if (!mounted) return;
     setState(() {
       _isEnabled = enabled;
-      _blockedCount = SiteBlockerService.getBlockedSiteCount();
+      _blockedCount = count;
     });
   }
 
@@ -104,7 +157,7 @@ class _SiteBlockerTileState extends State<_SiteBlockerTile> {
         ),
         title: const Text('Site Blocker'),
         subtitle: Text(
-          _isEnabled 
+          _isEnabled
               ? 'Blocking $_blockedCount adult sites'
               : '$_blockedCount sites available to block',
         ),
@@ -128,7 +181,12 @@ class _ActionTile extends StatelessWidget {
   final String subtitle;
   final VoidCallback onTap;
 
-  const _ActionTile({required this.icon, required this.title, required this.subtitle, required this.onTap});
+  const _ActionTile({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
