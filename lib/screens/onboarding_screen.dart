@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../dart_crash_reporter.dart';
+import 'home_screen.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -50,7 +52,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               child: SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: _finish,
+                  onPressed: _onPrimaryButtonPressed,
                   child: Text(_page == 2 ? 'Get Started' : 'Next'),
                 ),
               ),
@@ -61,11 +63,33 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     );
   }
 
+  void _onPrimaryButtonPressed() {
+    if (_page < 2) {
+      _pageController.nextPage(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    } else {
+      _finish();
+    }
+  }
+
   Future<void> _finish() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('onboarding_complete', true);
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('onboarding_complete', true);
+    } catch (e, s) {
+      // Persisting the flag isn't critical — even if it fails, we can still
+      // navigate to the home screen this session. Report but don't block.
+      DartCrashReporter.report('Failed to save onboarding_complete', e, s);
+    }
     if (!mounted) return;
-    Navigator.of(context).pushReplacementNamed('/home');
+    // Use a MaterialPageRoute, not pushReplacementNamed('/home') — the
+    // MaterialApp has no `routes:` table, so a named-route push would
+    // throw "Could not find a generator for route /home".
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(builder: (_) => const HomeScreen()),
+    );
   }
 }
 
