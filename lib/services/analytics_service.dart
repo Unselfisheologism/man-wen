@@ -42,8 +42,11 @@ class AnalyticsService {
       );
     } catch (e, s) {
       // Report but don't throw — the page must always render.
+      // DartCrashReporter.report is void (fire-and-forget), so
+      // don't await it — the previous commit did, which broke
+      // the build ("type 'void' can't be used").
       try {
-        await DartCrashReporter.report('snapshot failed', e, s);
+        DartCrashReporter.report('snapshot failed', e, s);
       } catch (_) {}
       return const AnalyticsSnapshot(
         urgeSessions: [],
