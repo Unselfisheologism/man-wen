@@ -72,13 +72,39 @@ android {
     }
 }
 
-// NOTE: A previous version of this file pulled in flutter.jar from the SDK
-// engine cache (commit 2cd87d0) as a workaround for the Flutter 3.22 +
-// AGP 8.x com.android.build.OutputFile NoClassDefFoundError. That issue is
-// now fixed by scripts/patch-flutter-sdk.sh which sed-patches the Flutter
-// SDK's flutter.groovy at CI time. With the workaround gone, the Flutter
-// plugin's Maven AAR is the sole source of io.flutter.embedding.* classes
-// and libflutter.so - no more duplicate-class classloader conflict on launch.
+// Flutter engine classes + native libs from the SDK engine cache.
+// Required for compile classpath: the Flutter Gradle plugin's Maven AAR does
+// not put io.flutter.embedding.* on the app module's compile classpath under
+// AGP 8.x + Flutter 3.22 (the includeBuild composite build only registers the
+// plugin tasks, not the embedding classes). Without this jar, MainActivity.kt
+// fails with 'Unresolved reference: FlutterActivity / FlutterEngine'.
+//
+// We declare it as compileOnly to avoid the runtime classloader conflict that
+// would occur if both this jar and the Maven AAR were on the runtime classpath
+// simultaneously. The runtime embedding classes are provided by the AAR
+// (the Maven AAR does ship io.flutter.embedding.* in its classes.jar), and
+// the native libs come from the AAR's jni/<abi>/libflutter.so for all 4 ABIs.
+def getFlutterEngineDir() {
+    try {
+        String sdk = null
+        def localProps = rootProject.file("local.properties")
+        if (localProps.exists()) {
+            def props = new Properties()
+            localProps.withInputStream { props.load(it) }
+            sdk = props.getProperty("flutter.sdk")
+        }
+        if (sdk == null && System.env.FLUTTER_ROOT != null) {
+            sdk = System.env.FLUTTER_ROOT
+        }
+        if (sdk == null) return null
+        def dir = file("$sdk/bin/cache/artifacts/engine/android-arm-release")
+        if (!dir.exists()) dir = file("$sdk/bin/cache/artifacts/engine/android-arm")
+        if (!dir.exists()) return null
+        return dir
+    } catch (Exception ignored) { return null }
+}
+
+def flutterEngineDir = getFlutterEngineDir()
 
 flutter {
     source = "../.."
@@ -111,4 +137,9 @@ dependencies {
      // Core AndroidX libraries
      implementation "androidx.core:core-ktx:1.13.1"
      implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.8.4"
+
+     // Flutter engine - compileOnly only (see comment above)
+     if (flutterEngineDir != null && flutterEngineDir.exists()) {
+         compileOnly files("$flutterEngineDir/flutter.jar")
+     }
 }
