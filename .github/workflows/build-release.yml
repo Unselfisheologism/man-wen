@@ -38,6 +38,9 @@ jobs:
       - name: Patch Flutter SDK for AGP 8.x OutputFile compat
         run: bash scripts/patch-flutter-sdk.sh
 
+      - name: Get Flutter dependencies
+        run: flutter pub get
+
       - name: Decode Android keystore
         if: ${{ env.SIGNING_KEY_STORE_BASE64 != '' }}
         env:
