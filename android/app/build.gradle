@@ -70,6 +70,21 @@ android {
             debuggable true
         }
     }
+
+    // Adding flutter.jar from the SDK cache back to the runtime classpath
+    // (see the `dependencies` block below) also re-pulls its bundled
+    // `lib/<abi>/libflutter.so`. The Flutter Gradle plugin ALSO ships
+    // `libflutter.so` via its own packaging, so debug builds end up with
+    // two copies of the same .so and AGP fails the build with
+    // `DuplicateRelativeFileException: 2 files found with path
+    // 'lib/armeabi-v7a/libflutter.so'`. `pickFirsts` tells AGP to keep
+    // one copy (the first one encountered) and drop the rest. Release
+    // builds happen to dedupe this themselves; this mainly fixes debug.
+    packagingOptions {
+        jniLibs {
+            pickFirsts += "lib/*/libflutter.so"
+        }
+    }
 }
 
 flutter {
