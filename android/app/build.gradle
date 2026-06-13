@@ -130,11 +130,15 @@ def flutterEngineDir = getFlutterEngineDir()
      implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.8.4"
 
      // Flutter engine classes from SDK cache (avoids AGP class pollution from Maven AAR).
-     // Must be compileOnly, NOT implementation — including flutter.jar in the runtime
-     // classpath causes a classloader conflict with the engine classes already bundled
-     // by the Flutter Gradle plugin, which crashes the app at startup with
-     // "ClassDefFoundError: io.flutter.embedding.engine.FlutterJNI" or similar.
+     // MUST stay on the runtime classpath (`implementation`, not `compileOnly`) for this
+     // project's old-style Flutter Gradle plugin setup (`flutter { source = "../.." }`
+     // in build.gradle). The new-style `id("dev.flutter.flutter-gradle-plugin")` plugin
+     // auto-pulls the engine AAR, so `compileOnly` would be safe under it — but under
+     // the old plugin, no engine AAR is added, and removing flutter.jar from the
+     // runtime classpath drops io.flutter.embedding.android.FlutterActivity out of the
+     // APK, crashing the app on launch with
+     // `ClassNotFoundException: io.flutter.embedding.android.FlutterActivity`.
      if (flutterEngineDir != null && flutterEngineDir.exists()) {
-         compileOnly files("$flutterEngineDir/flutter.jar")
+         implementation files("$flutterEngineDir/flutter.jar")
      }
  }
