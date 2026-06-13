@@ -83,8 +83,9 @@ public class SharedPreferencesPlugin implements FlutterPlugin, MethodChannel.Met
                     break;
                 case "setDouble":
                     // SharedPreferences has no native double — encode as float
-                    // (same trick the upstream plugin uses)
-                    editor.putFloat(prefixed(keyOf(call)), ((Number) call.argument("value")).doubleValue()).apply();
+                    // (same trick the upstream plugin uses). Explicit (float)
+                    // cast required by Java because double→float is narrowing.
+                    editor.putFloat(prefixed(keyOf(call)), (float) ((Number) call.argument("value")).doubleValue()).apply();
                     result.success(true);
                     break;
                 case "setStringList": {
@@ -122,7 +123,9 @@ public class SharedPreferencesPlugin implements FlutterPlugin, MethodChannel.Met
                     break;
                 case "getDouble":
                     // No native double; decode from the float we stored.
-                    result.success((double) prefs.getFloat(prefixed(keyOf(call)), 0.0));
+                    // 0.0f (not 0.0) — Java distinguishes float and double
+                    // literals and getFloat needs a float default.
+                    result.success((double) prefs.getFloat(prefixed(keyOf(call)), 0.0f));
                     break;
                 case "getStringList": {
                     java.util.Set<String> set = prefs.getStringSet(prefixed(keyOf(call)), null);
