@@ -72,27 +72,22 @@ android {
     }
 }
 
-// Flutter engine classes + native libs from the SDK engine cache.
-// Required for compile classpath: the Flutter Gradle plugin's Maven AAR does
-// not put io.flutter.embedding.* on the app module's compile classpath under
-// AGP 8.x + Flutter 3.22 (the includeBuild composite build only registers the
-// plugin tasks, not the embedding classes). Without this jar, MainActivity.kt
-// fails with 'Unresolved reference: FlutterActivity / FlutterEngine'.
-//
-// We declare it as compileOnly to avoid the runtime classloader conflict that
-// would occur if both this jar and the Maven AAR were on the runtime classpath
-// simultaneously. The runtime embedding classes are provided by the AAR
-// (the Maven AAR does ship io.flutter.embedding.* in its classes.jar), and
-// the native libs come from the AAR's jni/<abi>/libflutter.so for all 4 ABIs.
+flutter {
+    source = "../.."
+}
+
+// Add Flutter engine classes from SDK cache (avoids AGP class pollution from Maven AAR)
 def getFlutterEngineDir() {
     try {
         String sdk = null
+        // 1. Try local.properties
         def localProps = rootProject.file("local.properties")
         if (localProps.exists()) {
             def props = new Properties()
             localProps.withInputStream { props.load(it) }
             sdk = props.getProperty("flutter.sdk")
         }
+        // 2. Fall back to FLUTTER_ROOT env var
         if (sdk == null && System.env.FLUTTER_ROOT != null) {
             sdk = System.env.FLUTTER_ROOT
         }
@@ -106,11 +101,7 @@ def getFlutterEngineDir() {
 
 def flutterEngineDir = getFlutterEngineDir()
 
-flutter {
-    source = "../.."
-}
-
-dependencies {
+ dependencies {
      // Room
      implementation "androidx.room:room-runtime:2.6.1"
      implementation "androidx.room:room-ktx:2.6.1"
@@ -138,8 +129,8 @@ dependencies {
      implementation "androidx.core:core-ktx:1.13.1"
      implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.8.4"
 
-     // Flutter engine - compileOnly only (see comment above)
+     // Flutter engine classes from SDK cache (avoids Maven AAR AGP pollution)
      if (flutterEngineDir != null && flutterEngineDir.exists()) {
-         compileOnly files("$flutterEngineDir/flutter.jar")
+         implementation files("$flutterEngineDir/flutter.jar")
      }
-}
+ }
