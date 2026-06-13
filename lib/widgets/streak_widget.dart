@@ -1,80 +1,53 @@
 import 'package:flutter/material.dart';
+import '../theme/app_theme.dart';
 
-/// Big-number "Current Streak" display. Flat surface, no gradient —
-/// matches the rest of the app's design language. Big editorial
-/// typography, single accent rule on the left edge for hierarchy.
+/// Current streak display — editorial / faded almanac register.
+///
+/// Composition:
+///   - Section header in mono:  "02 // CURRENT STREAK"
+///   - Hairline rule below
+///   - Big thin sans number, mono "days" suffix
+///   - Hairline rule
+///   - Two stat cells (Best / Relapses) with mono micro-labels
 class StreakWidget extends StatelessWidget {
   const StreakWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final color = Theme.of(context).colorScheme;
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
-      decoration: BoxDecoration(
-        color: const Color(0xFFFCE4EC), // pink.shade50 equivalent, flat
-        borderRadius: BorderRadius.circular(4),
-        border: Border(
-          left: BorderSide(color: color.primary, width: 4),
-          top: BorderSide(color: Colors.black.withOpacity(0.06)),
-          right: BorderSide(color: Colors.black.withOpacity(0.06)),
-          bottom: BorderSide(color: Colors.black.withOpacity(0.06)),
-        ),
-      ),
+      margin: const EdgeInsets.fromLTRB(20, 0, 20, 0),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(
-            'CURRENT STREAK',
-            style: TextStyle(
-              color: color.primary,
-              fontSize: 11,
-              fontWeight: FontWeight.w700,
-              letterSpacing: 1.2,
-            ),
-          ),
-          const SizedBox(height: 4),
+          // 02 // CURRENT STREAK ──────────────────────────────────
+          const SectionHeader(number: '02', label: 'CURRENT STREAK'),
+          Container(height: 1, color: AppTheme.rule),
+          const SizedBox(height: 24),
+
+          // The streak number ────────────────────────────────────
           Row(
             crossAxisAlignment: CrossAxisAlignment.baseline,
             textBaseline: TextBaseline.alphabetic,
-            children: [
-              const Text(
-                '0',
-                style: TextStyle(
-                  fontSize: 72,
-                  fontWeight: FontWeight.w200,
-                  height: 1,
-                  letterSpacing: -2,
-                  // Explicit dark — the surface is always a light pink, so
-                  // default theme text would be white in dark mode and
-                  // disappear into the background.
-                  color: Colors.black,
-                ),
-              ),
-              const SizedBox(width: 8),
-              const Text(
-                'days',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w400,
-                  color: Colors.black54,
-                ),
+            children: const [
+              Text('0', style: AppTheme.display),
+              SizedBox(width: 12),
+              Padding(
+                padding: EdgeInsets.only(bottom: 12),
+                child: Text('DAYS', style: AppTheme.label),
               ),
             ],
           ),
+
+          const SizedBox(height: 24),
+          Container(height: 1, color: AppTheme.rule),
           const SizedBox(height: 16),
-          Container(height: 1, color: Colors.black.withOpacity(0.08)),
-          const SizedBox(height: 12),
+
+          // Best / Relapses ──────────────────────────────────────
           Row(
-            children: [
-              Expanded(
-                child: _StatCell(label: 'Best', value: '0', context: context),
-              ),
-              Container(width: 1, height: 32, color: Colors.black.withOpacity(0.08)),
-              Expanded(
-                child: _StatCell(label: 'Relapses', value: '0', context: context),
-              ),
+            children: const [
+              Expanded(child: _StatCell(label: 'BEST', value: '0')),
+              SizedBox(width: 16),
+              Expanded(child: _StatCell(label: 'RELAPSES', value: '0')),
             ],
           ),
         ],
@@ -86,36 +59,54 @@ class StreakWidget extends StatelessWidget {
 class _StatCell extends StatelessWidget {
   final String label;
   final String value;
-  final BuildContext context;
-  const _StatCell({required this.label, required this.value, required this.context});
+  const _StatCell({required this.label, required this.value});
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label.toUpperCase(),
-          style: const TextStyle(
-            fontSize: 10,
-            fontWeight: FontWeight.w600,
-            letterSpacing: 0.8,
-            color: Colors.black54,
-          ),
-        ),
-        const SizedBox(height: 2),
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.w600,
-            letterSpacing: -0.5,
-            // Same reasoning as the big '0' — explicit dark on the
-            // always-light-pink surface.
-            color: Colors.black,
-          ),
-        ),
+        Text(label, style: AppTheme.label),
+        const SizedBox(height: 6),
+        Text(value, style: AppTheme.displaySmall),
       ],
+    );
+  }
+}
+
+/// `01 // LABEL` — the recurring editorial pattern. Mono throughout,
+/// uppercase, letter-spaced. Used at the top of every section.
+class SectionHeader extends StatelessWidget {
+  final String number;
+  final String label;
+  final String? trailing;
+
+  const SectionHeader({
+    super.key,
+    required this.number,
+    required this.label,
+    this.trailing,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 28, bottom: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Text(
+            '$number //',
+            style: AppTheme.label.copyWith(color: AppTheme.inkSoft),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(label, style: AppTheme.label),
+          ),
+          if (trailing != null)
+            Text(trailing!, style: AppTheme.labelSoft),
+        ],
+      ),
     );
   }
 }

@@ -9,9 +9,10 @@ import 'theme/app_theme.dart';
 
 /// App-wide theme mode, updated when the user picks a different one in
 /// the Settings screen. ManWenApp listens to this and rebuilds the
-/// MaterialApp when it changes.
+/// MaterialApp when it changes. Defaults to light (the cream/ink
+/// "faded risograph" theme is the canonical Man Wen look).
 final ValueNotifier<ThemeMode> themeModeNotifier =
-    ValueNotifier<ThemeMode>(ThemeMode.system);
+    ValueNotifier<ThemeMode>(ThemeMode.light);
 
 void main() {
   // Install BEFORE runApp so the framework error handler is in place from
@@ -44,8 +45,8 @@ class ManWenApp extends StatelessWidget {
       builder: (context, mode, _) {
         return MaterialApp(
           title: 'Man Wen',
-          theme: AppTheme.lightTheme,
-          darkTheme: AppTheme.darkTheme,
+          theme: AppTheme.light,
+          darkTheme: AppTheme.dark,
           themeMode: mode,
           home: const AppLauncher(),
         );
