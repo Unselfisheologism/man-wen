@@ -79,9 +79,18 @@ flutter {
 // Add Flutter engine classes from SDK cache (avoids AGP class pollution from Maven AAR)
 def getFlutterEngineDir() {
     try {
-        def props = new Properties()
-        rootProject.file("local.properties").withInputStream { props.load(it) }
-        def sdk = props.getProperty("flutter.sdk")
+        String sdk = null
+        // 1. Try local.properties
+        def localProps = rootProject.file("local.properties")
+        if (localProps.exists()) {
+            def props = new Properties()
+            localProps.withInputStream { props.load(it) }
+            sdk = props.getProperty("flutter.sdk")
+        }
+        // 2. Fall back to FLUTTER_ROOT env var
+        if (sdk == null && System.env.FLUTTER_ROOT != null) {
+            sdk = System.env.FLUTTER_ROOT
+        }
         if (sdk == null) return null
         def dir = file("$sdk/bin/cache/artifacts/engine/android-arm-release")
         if (!dir.exists()) dir = file("$sdk/bin/cache/artifacts/engine/android-arm")
