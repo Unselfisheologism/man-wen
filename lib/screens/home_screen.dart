@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/preferences_service.dart';
 import '../services/site_blocker_service.dart';
@@ -63,7 +64,7 @@ class _QuickActions extends StatelessWidget {
             },
           ),
           _ActionTile(
-            icon: Icons.notifications_active,
+            icon: PhosphorIcons.bell(PhosphorIconsStyle.regular),
             title: 'Accountability',
             subtitle: 'Add partner',
             onTap: () {
@@ -74,7 +75,7 @@ class _QuickActions extends StatelessWidget {
             },
           ),
           _ActionTile(
-            icon: Icons.settings,
+            icon: PhosphorIcons.gear(PhosphorIconsStyle.regular),
             title: 'Settings',
             subtitle: 'Danger hours, sensitivity',
             onTap: () {

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Full implementation of the Urge Surfing feature. Surfaces the 4
@@ -22,21 +23,21 @@ class _UrgeSurfingScreenState extends State<UrgeSurfingScreen> {
   // Technique picker state
   final Map<String, _Technique> _techniques = {
     '4-7-8 Breathing': _Technique(
-      icon: Icons.air,
+      icon: PhosphorIcons.wind(PhosphorIconsStyle.regular),
       description:
           'Inhale 4s, hold 7s, exhale 8s. Repeat for 2-5 minutes — '
           'slows your heart rate and gives the urge time to peak and pass.',
       recommendedSeconds: 180,
     ),
     'Cold Shower': _Technique(
-      icon: Icons.shower,
+      icon: PhosphorIcons.shower(PhosphorIconsStyle.regular),
       description:
           '30-60 seconds of cold water on your face and body. Activates '
           'the mammalian dive reflex — a hard physiological reset.',
       recommendedSeconds: 60,
     ),
     'Push-up Challenge': _Technique(
-      icon: Icons.fitness_center,
+      icon: PhosphorIcons.barbell(PhosphorIconsStyle.regular),
       description:
           'Drop and do as many push-ups as you can (target 20-50). '
           'Physical exhaustion depletes the urge, and the endorphin '
@@ -44,14 +45,14 @@ class _UrgeSurfingScreenState extends State<UrgeSurfingScreen> {
       recommendedSeconds: 180,
     ),
     'Walk Outside': _Technique(
-      icon: Icons.directions_walk,
+      icon: PhosphorIcons.personSimpleWalk(PhosphorIconsStyle.regular),
       description:
           'Leave the room you\'re in. A 10-15 minute walk, ideally '
           'outdoors. The change of scenery and physical movement breaks '
           'the rumination loop the urge feeds on.',
       recommendedSeconds: 900,
     ),
-  };
+  );
 
   // Active session state. null = on the technique picker screen.
   String? _activeTechniqueKey;
@@ -294,7 +295,7 @@ class _UrgeSurfingScreenState extends State<UrgeSurfingScreen> {
               const Spacer(),
               ElevatedButton.icon(
                 onPressed: _startSession,
-                icon: const Icon(Icons.play_arrow),
+                icon: Icon(PhosphorIcons.play(PhosphorIconsStyle.regular)),
                 label: const Text('Start session'),
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
@@ -403,7 +404,7 @@ class _UrgeSurfingScreenState extends State<UrgeSurfingScreen> {
               const Spacer(),
               ElevatedButton.icon(
                 onPressed: _saveSession,
-                icon: const Icon(Icons.save),
+                icon: Icon(PhosphorIcons.floppyDisk(PhosphorIconsStyle.regular)),
                 label: const Text('Save session'),
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
