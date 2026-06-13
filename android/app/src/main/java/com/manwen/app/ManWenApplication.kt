@@ -7,9 +7,6 @@ import android.os.Build
 import android.util.Log
 import com.manwen.app.data.local.AppDatabase
 import com.manwen.app.data.preferences.PreferencesManager
-import java.io.File
-import java.io.PrintWriter
-import java.io.StringWriter
 
 class ManWenApplication : Application() {
 
@@ -27,10 +24,10 @@ class ManWenApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         try {
-            installCrashHandler()
+            CrashReporter.install(this)
         } catch (t: Throwable) {
             // Crash handler is best-effort — never let it block app start.
-            Log.e("ManWenApp", "installCrashHandler failed", t)
+            Log.e("ManWenApp", "CrashReporter.install failed", t)
         }
         try {
             createNotificationChannels()
@@ -41,34 +38,9 @@ class ManWenApplication : Application() {
         // they're lazy and will initialize on first access from a screen.
     }
 
-    private fun installCrashHandler() {
-        val previous = Thread.getDefaultUncaughtExceptionHandler()
-        Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
-            try {
-                val sw = StringWriter()
-                throwable.printStackTrace(PrintWriter(sw))
-                val crashText = buildString {
-                    appendLine("=== Man Wen Crash ===")
-                    appendLine("Time: ${System.currentTimeMillis()}")
-                    appendLine("Thread: ${thread.name}")
-                    appendLine("App version: ${packageManager.getPackageInfo(packageName, 0).versionName}")
-                    appendLine("Android: ${Build.VERSION.RELEASE} (SDK ${Build.VERSION.SDK_INT})")
-                    appendLine("Device: ${Build.MANUFACTURER} ${Build.MODEL}")
-                    appendLine("ABI: ${Build.SUPPORTED_ABIS.joinToString()}")
-                    appendLine()
-                    appendLine(sw.toString())
-                }
-                // Write to external files dir (no permission needed, accessible to file managers)
-                val outFile = File(getExternalFilesDir(null), "crash.log")
-                outFile.writeText(crashText)
-                Log.e("ManWenCrash", "Crash written to ${outFile.absolutePath}")
-                Log.e("ManWenCrash", crashText)
-            } catch (loggingFailure: Throwable) {
-                Log.e("ManWenCrash", "Failed to persist crash log", loggingFailure)
-            }
-            previous?.uncaughtException(thread, throwable)
-        }
-    }
+    // installCrashHandler moved into CrashReporter.install() — keeps
+    // the full report (device info + stack trace) in 4 discoverable locations
+    // including the public Downloads directory on Android 10+.
 
     private fun createNotificationChannels() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
