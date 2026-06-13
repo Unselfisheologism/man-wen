@@ -12,15 +12,33 @@ import java.io.PrintWriter
 import java.io.StringWriter
 
 class ManWenApplication : Application() {
-    lateinit var database: AppDatabase
-    lateinit var preferences: PreferencesManager
+
+    // Lazy so the (potentially heavy) Room + DataStore init does not run on the
+    // main thread during Application.onCreate(). A failure in either will surface
+    // on first access instead of killing the app before any UI shows.
+    val database: AppDatabase by lazy {
+        AppDatabase.getInstance(this)
+    }
+
+    val preferences: PreferencesManager by lazy {
+        PreferencesManager(this)
+    }
 
     override fun onCreate() {
         super.onCreate()
-        installCrashHandler()
-        database = AppDatabase.getInstance(this)
-        preferences = PreferencesManager(this)
-        createNotificationChannels()
+        try {
+            installCrashHandler()
+        } catch (t: Throwable) {
+            // Crash handler is best-effort — never let it block app start.
+            Log.e("ManWenApp", "installCrashHandler failed", t)
+        }
+        try {
+            createNotificationChannels()
+        } catch (t: Throwable) {
+            Log.e("ManWenApp", "createNotificationChannels failed", t)
+        }
+        // `database` and `preferences` are intentionally NOT touched here —
+        // they're lazy and will initialize on first access from a screen.
     }
 
     private fun installCrashHandler() {
