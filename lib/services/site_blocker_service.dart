@@ -285,28 +285,152 @@ class SiteBlockerService {
     'pacopacomama.com', 'pacopacomama.com',
   ];
 
+  /// NSFW subreddit names. Each is added to [defaultPathBlocklist]
+  /// as `reddit.com/r/<name>` so only the NSFW sub is blocked —
+  /// the rest of Reddit stays accessible. The count is NOT included
+  /// in [getBlockedSiteCount] (which is host-based) to keep the
+  /// home-screen count readable.
+  static const List<String> nsfwSubreddits = [
+    // === General NSFW / discovery ===
+    'nsfw', 'NSFW', 'nsfw411', 'nsfw_gif', 'nsfw_gifs',
+    'nsfwhardcore', 'nsfwdaily', 'nsfwwomen', 'nsfwmen', 'nsfwfunny',
+    'nsfw_irl', 'porn', 'porn_gifs', 'porninfifteenseconds', 'pornvids',
+    'porn_couples', 'porn_in_15_seconds', 'bestofporn',
+
+    // === Amateur / user-submitted ===
+    'gonewild', 'gonewildstories', 'gonewildaudio', 'gonewildtube',
+    'gonewildcouple', 'gonewildcolor', 'gonewildcurvy', 'gonewildsmiling',
+    'gonewildmarried', 'gonewildchubby', 'gonewildbigtits',
+    'gonewildfree', 'gonewildpublic', 'gonewildselfie', 'workgonewild',
+    'gwpublic', 'homemadexxx', 'amateur', 'amateurporn', 'RealGirls',
+    'realamateur', 'selfies', 'selfieporn', 'self_amateur_porn',
+
+    // === Specific body / act tags ===
+    'cumsluts', 'cumpuppies', 'cumonmyface', 'cumontits', 'cumcovered',
+    'cumshots', 'creampies', 'creampie', 'pussy', 'pussyrating',
+    'rearpussy', 'perfectpussies', 'spreadpussies', 'asstastic',
+    'ass', 'anal', 'AnalGW', 'deepthroat', 'throatpies', 'blowjobs',
+    'blowjob', 'blowbang', 'titfuck', 'tittyfuck', 'boobs',
+    'boobies', 'bigboobsgw', 'biggerthanyouthought', 'onhertits',
+    'HugeBoobsGW', 'pokies', 'cleavage', 'nipples', 'nipple',
+    'voluptuous', 'thick', 'thighhighs', 'asianhotties', 'asiansgonewild',
+    'bbw', 'bbwselfies', 'BBGW', 'bigtiddygothgf', 'redheads',
+    'redheadxxx', 'petitegonewild', 'petite', 'petitexxx',
+    'thickasses', 'fitnessgirls', 'yogapants', 'yogapanties',
+
+    // === Solo performer / celebrity ===
+    'celebnsfw', 'celebs', 'celebritypussy', 'celebrityfakes',
+    'celebritysextapes', 'celebsleaks', 'FauxBait', 'lipslut',
+
+    // === Verified amateurs / cam / onlyfans ===
+    'onlyfans101', 'onlyfans_empire', 'onlyfansleaks',
+    'onlyfansgirls', 'onlyfansgals', 'onlyfansceleb',
+
+    // === Couples / MFF / Threesome / Group ===
+    'threesome', 'groupsex', 'gangbang', 'orgies', 'orgy',
+    'cuckold', 'cuckquean', 'cuckoldcaptions', 'hotwifelifestyle',
+    'swingers', 'r4r', 'dirtyr4r', 'r4r30plus', 'r4r_adult',
+
+    // === Kink / fetish / BDSM ===
+    'bdsm', 'BDSMcommunity', 'Bondage', 'bondage_gif',
+    'ropebondage', 'leatherfaces', 'femdom', 'femdomcaptions',
+    'findom', 'foot fetish', 'feet', 'feetish', 'feetpicselling',
+    'footpics', 'forcedsex', 'forcedorgasms', 'spanking',
+    'spanked', 'painal', 'facesitting', 'facesit', 'gape',
+    'gaping', 'sph', 'sissy', 'sissyporn', 'chastity',
+    'feminization', 'femboy', 'femboyporn', 'crossdresser',
+    'diaper', 'watersports', 'pissing', 'golden', 'shemale',
+    'shemales', 'shemale_gifs', 'shemales_porn', 'tgirl',
+
+    // === Hentai / drawn / animated ===
+    'hentai', 'hentaigif', 'hentai_gifs', 'hentai_irl', 'hentaii',
+    'rule34', 'rule34_comics', 'rule34xxx', 'rule34hentai',
+    'rule34gifs', 'doujinshi', 'hentai_manga', 'ahegao',
+    'ahegaoNSFW', 'oppai', 'oppai_gif', 'paizuri', 'tentai',
+    '3d_hentai', '3Dhentai', 'westernhentai', 'futanari',
+
+    // === Gay / queer / M4M ===
+    'gayporn', 'gaybears', 'GayPornGeek', 'gaycum', 'gayporngif',
+    'gaytwinks', 'twinks', 'twinkporn', 'gaymers', 'massageparlor',
+    'broslikeus', 'gay', 'lgbtporn',
+
+    // === Lesbian / WLW ===
+    'lesbians', 'lesbianporn', 'scissoring', 'tribbing',
+    'girlskissing', 'mmfthreesome', 'lesbian_gifs', 'lesbianbondage',
+
+    // === Specific / themed ===
+    'milf', 'milf_gifs', 'milfporn', 'matureporn', 'matures',
+    'oldgonewild', 'granny', 'housewifefun', 'wifesharing',
+    'cheatingwives', 'marriedporn', 'marriedgonewild',
+    'latinas', 'latinaporn', 'ebony', 'ebonyporn', 'bbwxxx',
+    'indiansgonewild', 'indiangirls', 'indianporn', 'desiporn',
+    'desigfs', 'japaneseporn', 'japanese_gifs', 'jav',
+    'cosplayporn', 'cosplaygirls', 'nsfwcosplay', 'nsfwoutfits',
+    'hentai_cosplay', 'yiff', 'yiff_gifs', 'furryporn',
+    'furry', 'furry_gonewild', 'dragonfurry', 'scalie',
+
+    // === Misc / aggregator / popular ===
+    'SexTapes', 'sextapes', 'celebnudes', 'onlyfansleaks',
+    'dirtystories', 'sexstories', 'eroticstories', 'nsfwstories',
+    'naughtyconfessions', 'confession', 'sluttyconfessions',
+    'penpals', 'penpal', 'penpalgonewild', 'dirtypenpals',
+    'sex', 'Sexy', 'sexy', 'tits', 'ass', 'pornhub', 'xvideos',
+    'redtube', 'xnxx', 'xhamster', 'youporn',
+
+    // === Hookup-adjacent (often NSFW in nature) ===
+    'dirtyr4r', 'r4r', 'r4r_adult', 'hookup', 'casualhookup',
+    'adultsnap', 'snapchat_smut', 'sissypersonals',
+  ];
+
+  /// Path-based block patterns. Each entry is matched against the
+  /// full URL (post-`https?://` strip) as a prefix. `reddit.com/r/nsfw`
+  /// blocks the NSFW sub but leaves the rest of Reddit accessible.
+  static List<String> get defaultPathBlocklist =>
+      nsfwSubreddits.map((s) => 'reddit.com/r/$s').toList();
+
   /// Get all blocklist domains (default + custom)
   static List<String> getAllBlockedSites() {
     final customSites = _getCustomSites();
     return [...defaultBlocklist, ...customSites].toSet().toList();
   }
 
-  /// Check if a URL matches any blocked site
+  /// Check if a URL matches any blocked site.
+  ///
+  /// Two passes:
+  ///   1. Host-based — match against [defaultBlocklist] + custom sites
+  ///      (current behavior, unchanged).
+  ///   2. Path-based — match against [defaultPathBlocklist] as a
+  ///      prefix of the post-scheme URL. This is what blocks
+  ///      specific NSFW subreddits on Reddit while leaving the rest
+  ///      of the site accessible.
   static bool isBlocked(String url) {
     final lowerUrl = url.toLowerCase().replaceAll(RegExp(r'^https?://'), '');
     final host = lowerUrl.split('/').first;
-    
+
+    // Pass 1: host-based blocks
     for (final site in getAllBlockedSites()) {
       final siteLower = site.toLowerCase();
       if (host == siteLower || host.endsWith('.$siteLower') || siteLower.contains(host)) {
         return true;
       }
     }
+
+    // Pass 2: path-based blocks (NSFW subreddit paths on Reddit, etc.)
+    // Match `reddit.com/r/nsfw` exactly OR as a prefix followed by
+    // a path separator. Using a bare `startsWith` would also match
+    // `reddit.com/r/nsfwxxx` which is a different sub.
+    for (final pattern in defaultPathBlocklist) {
+      if (lowerUrl == pattern || lowerUrl.startsWith('$pattern/')) {
+        return true;
+      }
+    }
+
     return false;
   }
 
-  /// Get blocked site count
-  static int getBlockedSiteCount() => getAllBlockedSites().length;
+  /// Get blocked site count (host + path patterns + custom).
+  static int getBlockedSiteCount() =>
+      getAllBlockedSites().length + nsfwSubreddits.length;
 
   /// Load custom sites from preferences
   static List<String> _getCustomSites() {
