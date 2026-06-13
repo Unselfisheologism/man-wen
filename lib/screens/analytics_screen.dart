@@ -20,6 +20,7 @@ class AnalyticsScreen extends StatefulWidget {
 
 class _AnalyticsScreenState extends State<AnalyticsScreen> {
   Future<AnalyticsSnapshot>? _future;
+  int _retryToken = 0; // bumped on retry so FutureBuilder remounts fresh
 
   @override
   void initState() {
@@ -28,7 +29,10 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
   }
 
   void _refresh() {
-    setState(() => _future = AnalyticsService.snapshot());
+    setState(() {
+      _future = AnalyticsService.snapshot();
+      _retryToken++;
+    });
   }
 
   @override
@@ -36,17 +40,34 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
     return Scaffold(
       body: SafeArea(
         child: FutureBuilder<AnalyticsSnapshot>(
+          // Key on the retry token forces FutureBuilder to treat each
+          // retry as a fresh widget, so the spinner is shown again
+          // even if the previous future errored.
+          key: ValueKey('analytics-fb-$_retryToken'),
           future: _future,
           builder: (context, snap) {
             if (snap.connectionState == ConnectionState.waiting) {
               return const Center(
-                  child: CircularProgressIndicator(color: AppTheme.catStats));
+                  child:
+                      CircularProgressIndicator(color: AppTheme.catStats));
             }
+            // No try-catch around the body — snapshot() is now
+            // bulletproof and never throws. hasError would only fire
+            // if something inside the body itself throws (which the
+            // body is also designed not to do), but if it does we
+            // fall through to the body anyway with empty data so the
+            // user never gets stuck on the error screen.
             if (snap.hasError || !snap.hasData) {
-              return _ErrorState(onRetry: _refresh);
+              final fallback = const AnalyticsSnapshot(
+                urgeSessions: [],
+                currentStreakDays: 0,
+                bestStreakDays: 0,
+                blockerFiredCount: 0,
+                blockerDisabledCount: 0,
+              );
+              return _AnalyticsBody(snapshot: fallback);
             }
-            final s = snap.data!;
-            return _AnalyticsBody(snapshot: s);
+            return _AnalyticsBody(snapshot: snap.data!);
           },
         ),
       ),

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../dart_crash_reporter.dart';
 
 /// Aggregated analytics data for the Man Wen home screen.
 ///
@@ -24,16 +25,42 @@ class AnalyticsService {
 
   /// Aggregated snapshot — all reads in one call so the analytics
   /// screen can build a single render pass.
+  ///
+  /// Bulletproof: every read is wrapped in its own try-catch and a
+  /// single failure yields a safe default snapshot. The page should
+  /// always render *something*, even with no data.
   static Future<AnalyticsSnapshot> snapshot() async {
-    final prefs = await SharedPreferences.getInstance();
-    final sessions = _readSessions(prefs);
-    return AnalyticsSnapshot(
-      urgeSessions: sessions,
-      currentStreakDays: _currentStreakDays(prefs, sessions),
-      bestStreakDays: prefs.getInt(_bestStreakKey) ?? 0,
-      blockerFiredCount: prefs.getInt(_blockerFiredKey) ?? 0,
-      blockerDisabledCount: prefs.getInt(_blockerDisabledKey) ?? 0,
-    );
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final sessions = _readSessions(prefs);
+      return AnalyticsSnapshot(
+        urgeSessions: sessions,
+        currentStreakDays: _currentStreakDays(prefs, sessions),
+        bestStreakDays: _safeInt(prefs, _bestStreakKey),
+        blockerFiredCount: _safeInt(prefs, _blockerFiredKey),
+        blockerDisabledCount: _safeInt(prefs, _blockerDisabledKey),
+      );
+    } catch (e, s) {
+      // Report but don't throw — the page must always render.
+      try {
+        await DartCrashReporter.report('snapshot failed', e, s);
+      } catch (_) {}
+      return const AnalyticsSnapshot(
+        urgeSessions: [],
+        currentStreakDays: 0,
+        bestStreakDays: 0,
+        blockerFiredCount: 0,
+        blockerDisabledCount: 0,
+      );
+    }
+  }
+
+  static int _safeInt(SharedPreferences prefs, String key) {
+    try {
+      return prefs.getInt(key) ?? 0;
+    } catch (_) {
+      return 0;
+    }
   }
 
   /// Increment a counter (used by the blocker service when it fires
