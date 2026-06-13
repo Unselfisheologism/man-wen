@@ -133,7 +133,7 @@ class AppTheme {
     final bg = isLight ? paper : const Color(0xFF141413);
     final fg = isLight ? ink : const Color(0xFFEFE9DC);
     final fgSoft = fg.withOpacity(isLight ? 0.6 : 0.65);
-    final rule = isLight ? rule : const Color(0x33EFE9DC);
+    final ruleColor = isLight ? rule : const Color(0x33EFE9DC);
     final cardSurface = isLight ? surface : const Color(0xFF1C1B19);
 
     return ThemeData(
@@ -169,7 +169,7 @@ class AppTheme {
         titleTextStyle: label.copyWith(color: fg),
         toolbarHeight: 52,
       ),
-      cardTheme: CardThemeData(
+      cardTheme: CardTheme(
         color: cardSurface,
         elevation: 0,
         margin: EdgeInsets.zero,
@@ -178,7 +178,7 @@ class AppTheme {
         ),
       ),
       dividerTheme: DividerThemeData(
-        color: rule,
+        color: ruleColor,
         thickness: 1,
         space: 1,
       ),
@@ -207,7 +207,7 @@ class AppTheme {
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           foregroundColor: fg,
-          side: BorderSide(color: rule, width: 1),
+          side: BorderSide(color: ruleColor, width: 1),
           shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(0)),
           ),

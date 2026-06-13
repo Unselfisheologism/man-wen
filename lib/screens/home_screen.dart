@@ -25,44 +25,49 @@ class HomeScreen extends StatelessWidget {
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: const [
-              SizedBox(height: 16),
+            children: [
+              const SizedBox(height: 16),
 
               // 01 // HOME ─────────────────────────────────────
-              _Masthead(),
+              const _Masthead(),
               Container(height: 1, color: AppTheme.rule),
               const SizedBox(height: 24),
 
               // 02 // CURRENT STREAK ───────────────────────────
-              StreakWidget(),
+              const StreakWidget(),
 
               // 03 // PROTECTION (this week) ──────────────────
-              SectionHeader(number: '03', label: 'PROTECTION'),
+              const SectionHeader(number: '03', label: 'PROTECTION'),
               Container(
                 height: 1,
                 color: AppTheme.rule,
-                margin: EdgeInsets.symmetric(horizontal: 20),
+                margin: const EdgeInsets.symmetric(horizontal: 20),
               ),
               const SizedBox(height: 16),
-              ProgressWidget(),
+              const ProgressWidget(),
 
               // 04 // ACTIONS ──────────────────────────────────
-              SectionHeader(number: '04', label: 'ACTIONS'),
+              const SectionHeader(number: '04', label: 'ACTIONS'),
               Container(
                 height: 1,
                 color: AppTheme.rule,
-                margin: EdgeInsets.symmetric(horizontal: 20),
+                margin: const EdgeInsets.symmetric(horizontal: 20),
               ),
               const SizedBox(height: 8),
 
-              _SiteBlockerTile(),
+              const _SiteBlockerTile(),
               const _Hairline(),
               _ActionRow(
                 number: '04·02',
-                icon: Icon(Icons.air, size: 20, color: AppTheme.ink),
+                icon: const Icon(Icons.air, size: 20, color: AppTheme.ink),
                 title: 'URGE SURFING',
-                subtitle: '4-7-8 BREATHING  ·  COLD WATER  ·  PUSH-UPS  ·  WALK',
-                onTap: _openUrgeSurfing,
+                subtitle:
+                    '4-7-8 BREATHING  ·  COLD WATER  ·  PUSH-UPS  ·  WALK',
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) => const UrgeSurfingScreen()),
+                ),
               ),
               const _Hairline(),
               _ActionRow(
@@ -70,7 +75,11 @@ class HomeScreen extends StatelessWidget {
                 icon: AppIcons.bell(size: 20, color: AppTheme.ink),
                 title: 'ACCOUNTABILITY',
                 subtitle: 'TRUSTED PARTNER  ·  RELAPSE NOTIFICATIONS',
-                onTap: _openAccountability,
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) => const AccountabilityScreen()),
+                ),
               ),
               const _Hairline(),
               _ActionRow(
@@ -78,19 +87,22 @@ class HomeScreen extends StatelessWidget {
                 icon: AppIcons.gear(size: 20, color: AppTheme.ink),
                 title: 'SETTINGS',
                 subtitle: 'DANGER HOURS  ·  SENSITIVITY  ·  HAPTICS',
-                onTap: _openSettings,
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const SettingsScreen()),
+                ),
               ),
 
               // 05 // STATUS ───────────────────────────────────
-              SectionHeader(number: '05', label: 'STATUS'),
+              const SectionHeader(number: '05', label: 'STATUS'),
               Container(
                 height: 1,
                 color: AppTheme.rule,
-                margin: EdgeInsets.symmetric(horizontal: 20),
+                margin: const EdgeInsets.symmetric(horizontal: 20),
               ),
               const SizedBox(height: 12),
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20),
+                padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Row(
                   children: [
                     Container(
@@ -99,7 +111,9 @@ class HomeScreen extends StatelessWidget {
                       color: AppTheme.accent,
                     ),
                     const SizedBox(width: 12),
-                    Text('ARMED', style: AppTheme.label.copyWith(color: AppTheme.accent)),
+                    Text('ARMED',
+                        style: AppTheme.label
+                            .copyWith(color: AppTheme.accent)),
                     const Spacer(),
                     Text('v2.0.0  ·  MAN WEN', style: AppTheme.labelSoft),
                   ],
@@ -111,18 +125,6 @@ class HomeScreen extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  static void _openUrgeSurfing(BuildContext c) {
-    Navigator.push(c, MaterialPageRoute(builder: (_) => const UrgeSurfingScreen()));
-  }
-
-  static void _openAccountability(BuildContext c) {
-    Navigator.push(c, MaterialPageRoute(builder: (_) => const AccountabilityScreen()));
-  }
-
-  static void _openSettings(BuildContext c) {
-    Navigator.push(c, MaterialPageRoute(builder: (_) => const SettingsScreen()));
   }
 }
 
