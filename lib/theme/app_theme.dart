@@ -44,6 +44,18 @@ class AppTheme {
   /// 8% accent for subtle background tints.
   static const Color accentSubtle = Color(0x14A85543);
 
+  // ── Category palette ──────────────────────────────────────────
+  /// Each home action / feature gets its own color. Drawn from
+  /// the saturated card grids in the user's library / calendar
+  /// pins (image 38, 40) — each card a different solid color
+  /// with white text. All four are dark enough to host white text
+  /// at AA contrast. The progression also reads as
+  /// danger / energy / growth / system — semantic to the feature.
+  static const Color catBlocker = Color(0xFFA85543);  // brick   — protection
+  static const Color catUrge    = Color(0xFFC4631F);  // amber   — energy / heat
+  static const Color catAccount = Color(0xFF3F6B4F);  // forest  — trust
+  static const Color catSetting = Color(0xFF2E3D6B);  // indigo  — controls
+
   // ── Typography ────────────────────────────────────────────────
   /// Monospaced family for labels, section numbers, data.
   /// Resolved by the platform's `monospace` alias (Roboto Mono on

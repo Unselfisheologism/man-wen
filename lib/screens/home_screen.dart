@@ -9,12 +9,14 @@ import 'urge_surfing_screen.dart';
 import 'accountability_screen.dart';
 import 'settings_screen.dart';
 
-/// Home — the editorial spread.
+/// Home — the editorial spread, now in color.
 ///
-/// Composition follows the Pinterest-board pattern: numbered sections
-/// (`01 // HOME`, `02 // CURRENT STREAK`, ...), mono labels,
-/// hairline rules between every section, no rounded corners, one
-/// accent color (faded brick) used sparingly for status.
+/// Composition follows the user's Pinterest-board pattern of
+/// "each card its own color" (image 38 library grid, image 40
+/// calendar where each day is a different color). The page is
+/// still the cream paper — the colors live in the action cards
+/// and the spectrum row, so the editorial typography still reads
+/// on its muted background.
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
@@ -30,8 +32,12 @@ class HomeScreen extends StatelessWidget {
 
               // 01 // HOME ─────────────────────────────────────
               const _Masthead(),
-              Container(height: 1, color: AppTheme.rule),
-              const SizedBox(height: 24),
+              Container(
+                height: 1,
+                color: AppTheme.rule,
+                margin: const EdgeInsets.symmetric(horizontal: 20),
+              ),
+              const SizedBox(height: 8),
 
               // 02 // CURRENT STREAK ───────────────────────────
               const StreakWidget(),
@@ -46,20 +52,21 @@ class HomeScreen extends StatelessWidget {
               const SizedBox(height: 16),
               const ProgressWidget(),
 
-              // 04 // ACTIONS ──────────────────────────────────
+              // 04 // ACTIONS — one colored card per action ────
               const SectionHeader(number: '04', label: 'ACTIONS'),
               Container(
                 height: 1,
                 color: AppTheme.rule,
                 margin: const EdgeInsets.symmetric(horizontal: 20),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 16),
 
-              const _SiteBlockerTile(),
-              const _Hairline(),
-              _ActionRow(
+              const _SiteBlockerCard(),
+              const SizedBox(height: 8),
+              _ColorCard(
                 number: '04·02',
-                icon: const Icon(Icons.air, size: 20, color: AppTheme.ink),
+                color: AppTheme.catUrge,
+                iconWidget: const Icon(Icons.air, size: 22, color: AppTheme.paper),
                 title: 'URGE SURFING',
                 subtitle:
                     '4-7-8 BREATHING  ·  COLD WATER  ·  PUSH-UPS  ·  WALK',
@@ -69,10 +76,11 @@ class HomeScreen extends StatelessWidget {
                       builder: (_) => const UrgeSurfingScreen()),
                 ),
               ),
-              const _Hairline(),
-              _ActionRow(
+              const SizedBox(height: 8),
+              _ColorCard(
                 number: '04·03',
-                icon: AppIcons.bell(size: 20, color: AppTheme.ink),
+                color: AppTheme.catAccount,
+                iconWidget: AppIcons.bell(size: 22, color: AppTheme.paper),
                 title: 'ACCOUNTABILITY',
                 subtitle: 'TRUSTED PARTNER  ·  RELAPSE NOTIFICATIONS',
                 onTap: () => Navigator.push(
@@ -81,10 +89,11 @@ class HomeScreen extends StatelessWidget {
                       builder: (_) => const AccountabilityScreen()),
                 ),
               ),
-              const _Hairline(),
-              _ActionRow(
+              const SizedBox(height: 8),
+              _ColorCard(
                 number: '04·04',
-                icon: AppIcons.gear(size: 20, color: AppTheme.ink),
+                color: AppTheme.catSetting,
+                iconWidget: AppIcons.gear(size: 22, color: AppTheme.paper),
                 title: 'SETTINGS',
                 subtitle: 'DANGER HOURS  ·  SENSITIVITY  ·  HAPTICS',
                 onTap: () => Navigator.push(
@@ -92,8 +101,9 @@ class HomeScreen extends StatelessWidget {
                   MaterialPageRoute(builder: (_) => const SettingsScreen()),
                 ),
               ),
+              const SizedBox(height: 4),
 
-              // 05 // STATUS ───────────────────────────────────
+              // 05 // STATUS — a row of small category swatches ─
               const SectionHeader(number: '05', label: 'STATUS'),
               Container(
                 height: 1,
@@ -105,21 +115,21 @@ class HomeScreen extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Row(
                   children: [
-                    Container(
-                      width: 6,
-                      height: 6,
-                      color: AppTheme.accent,
-                    ),
-                    const SizedBox(width: 12),
+                    // 4 category swatches + 1 active dot
+                    _Swatch(color: AppTheme.catBlocker),
+                    _Swatch(color: AppTheme.catUrge),
+                    _Swatch(color: AppTheme.catAccount),
+                    _Swatch(color: AppTheme.catSetting),
+                    const SizedBox(width: 16),
                     Text('ARMED',
                         style: AppTheme.label
-                            .copyWith(color: AppTheme.accent)),
+                            .copyWith(color: AppTheme.ink)),
                     const Spacer(),
                     Text('v2.0.0  ·  MAN WEN', style: AppTheme.labelSoft),
                   ],
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 28),
             ],
           ),
         ),
@@ -140,132 +150,149 @@ class _Masthead extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Top row: 01 // HOME         v2.0.0.001
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text('01 // HOME', style: AppTheme.label.copyWith(color: AppTheme.inkSoft)),
+              Text('01 // HOME',
+                  style: AppTheme.label.copyWith(color: AppTheme.inkSoft)),
               Text('v2.0.0', style: AppTheme.labelSoft),
             ],
           ),
           const SizedBox(height: 16),
-          // Big display title
-          const Text('MAN WEN', style: TextStyle(
-            fontSize: 48,
-            fontWeight: FontWeight.w800,
-            letterSpacing: -2,
-            height: 0.95,
-            color: AppTheme.ink,
-          )),
+          const Text(
+            'MAN WEN',
+            style: TextStyle(
+              fontSize: 48,
+              fontWeight: FontWeight.w800,
+              letterSpacing: -2,
+              height: 0.95,
+              color: AppTheme.ink,
+            ),
+          ),
           const SizedBox(height: 8),
-          Text('QUIT.  STAY CLEAN.', style: AppTheme.label.copyWith(color: AppTheme.inkSoft)),
+          Text('QUIT.  STAY CLEAN.',
+              style: AppTheme.label.copyWith(color: AppTheme.inkSoft)),
         ],
       ),
     );
   }
 }
 
-class _Hairline extends StatelessWidget {
-  const _Hairline();
+/// 4px colored square — the status swatch at the bottom of the home
+/// screen. Each swatch echoes one of the action card colors so the
+/// palette reads end-to-end.
+class _Swatch extends StatelessWidget {
+  final Color color;
+  const _Swatch({required this.color});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 1,
-      color: AppTheme.rule,
-      margin: const EdgeInsets.symmetric(horizontal: 20),
+    return Padding(
+      padding: const EdgeInsets.only(right: 4),
+      child: Container(width: 10, height: 10, color: color),
     );
   }
 }
 
-/// Row in the actions list. `04·01 SITE BLOCKER  [ACTIVE]` — number
-/// on the left in mono, title in bold sans, status tag on the right
-/// in mono (color = accent for active, muted for inactive).
-class _ActionRow extends StatelessWidget {
+/// A solid-color action card. All text in `paper` (cream) on the
+/// category color. The card is full-width, no hairline, no rounded
+/// corners — the color block IS the visual.
+class _ColorCard extends StatelessWidget {
   final String number;
-  final Widget icon;
+  final Color color;
+  final Widget iconWidget;
   final String title;
   final String subtitle;
   final String? status;
-  final bool statusAccent;
   final VoidCallback onTap;
 
-  const _ActionRow({
+  const _ColorCard({
     required this.number,
-    required this.icon,
+    required this.color,
+    required this.iconWidget,
     required this.title,
     required this.subtitle,
     required this.onTap,
     this.status,
-    this.statusAccent = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Number column
-            SizedBox(
-              width: 56,
-              child: Text(
-                number,
-                style: AppTheme.label.copyWith(color: AppTheme.inkMuted),
-              ),
-            ),
-            // Icon
-            Padding(
-              padding: const EdgeInsets.only(top: 2, right: 16),
-              child: icon,
-            ),
-            // Title + subtitle
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: AppTheme.sectionTitle.copyWith(fontSize: 17),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(subtitle, style: AppTheme.labelSoft),
-                ],
-              ),
-            ),
-            // Status tag
-            if (status != null)
-              Padding(
-                padding: const EdgeInsets.only(top: 4, left: 8),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: InkWell(
+        onTap: onTap,
+        child: Container(
+          color: color,
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Number column — mono, on color
+              SizedBox(
+                width: 56,
                 child: Text(
-                  status!,
+                  number,
                   style: AppTheme.label.copyWith(
-                    color: statusAccent ? AppTheme.accent : AppTheme.inkMuted,
+                    color: AppTheme.paper.withOpacity(0.75),
                   ),
                 ),
               ),
-          ],
+              // Icon
+              Padding(
+                padding: const EdgeInsets.only(top: 2, right: 16),
+                child: iconWidget,
+              ),
+              // Title + subtitle
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: AppTheme.sectionTitle.copyWith(
+                        fontSize: 17,
+                        color: AppTheme.paper,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      subtitle,
+                      style: AppTheme.labelSoft.copyWith(
+                        color: AppTheme.paper.withOpacity(0.85),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              // Status tag (optional)
+              if (status != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 4, left: 8),
+                  child: Text(
+                    status!,
+                    style: AppTheme.label.copyWith(color: AppTheme.paper),
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
     );
   }
 }
 
-/// The Site Blocker tile — stateful because it reads native prefs.
-/// Shown as the first row in the actions list, before the static
-/// `_ActionRow`s.
-class _SiteBlockerTile extends StatefulWidget {
-  const _SiteBlockerTile();
+/// Site Blocker — the first action card. Stateful because the
+/// enabled/blocked-count values come from native prefs.
+class _SiteBlockerCard extends StatefulWidget {
+  const _SiteBlockerCard();
 
   @override
-  State<_SiteBlockerTile> createState() => _SiteBlockerTileState();
+  State<_SiteBlockerCard> createState() => _SiteBlockerCardState();
 }
 
-class _SiteBlockerTileState extends State<_SiteBlockerTile> {
+class _SiteBlockerCardState extends State<_SiteBlockerCard> {
   bool _isEnabled = false;
   int _blockedCount = 0;
 
@@ -293,62 +320,68 @@ class _SiteBlockerTileState extends State<_SiteBlockerTile> {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => const SiteBlockerSettingsScreen(),
-          ),
-        ).then((_) => _loadStatus());
-      },
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(
-              width: 56,
-              child: Text(
-                '04·01',
-                style: AppTheme.label.copyWith(color: AppTheme.inkMuted),
-              ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: InkWell(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const SiteBlockerSettingsScreen(),
             ),
-            Padding(
-              padding: const EdgeInsets.only(top: 2, right: 16),
-              child: AppIcons.shieldWarning(
-                size: 20,
-                color: _isEnabled ? AppTheme.ink : AppTheme.inkMuted,
-              ),
-            ),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'SITE BLOCKER',
-                    style: AppTheme.sectionTitle.copyWith(fontSize: 17),
+          ).then((_) => _loadStatus());
+        },
+        child: Container(
+          color: AppTheme.catBlocker,
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                width: 56,
+                child: Text(
+                  '04·01',
+                  style: AppTheme.label.copyWith(
+                    color: AppTheme.paper.withOpacity(0.75),
                   ),
-                  const SizedBox(height: 6),
-                  Text(
-                    _isEnabled
-                        ? 'BLOCKING $_blockedCount ADULT SITES'
-                        : '$_blockedCount SITES AVAILABLE TO BLOCK',
-                    style: AppTheme.labelSoft,
-                  ),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 4, left: 8),
-              child: Text(
-                _isEnabled ? 'ACTIVE' : 'OFF',
-                style: AppTheme.label.copyWith(
-                  color: _isEnabled ? AppTheme.accent : AppTheme.inkMuted,
                 ),
               ),
-            ),
-          ],
+              Padding(
+                padding: const EdgeInsets.only(top: 2, right: 16),
+                child: AppIcons.shieldWarning(size: 22, color: AppTheme.paper),
+              ),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'SITE BLOCKER',
+                      style: AppTheme.sectionTitle.copyWith(
+                        fontSize: 17,
+                        color: AppTheme.paper,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      _isEnabled
+                          ? 'BLOCKING $_blockedCount ADULT SITES'
+                          : '$_blockedCount SITES AVAILABLE TO BLOCK',
+                      style: AppTheme.labelSoft.copyWith(
+                        color: AppTheme.paper.withOpacity(0.85),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 4, left: 8),
+                child: Text(
+                  _isEnabled ? 'ACTIVE' : 'OFF',
+                  style: AppTheme.label.copyWith(color: AppTheme.paper),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -22,7 +22,15 @@ class StreakWidget extends StatelessWidget {
           // 02 // CURRENT STREAK ──────────────────────────────────
           const SectionHeader(number: '02', label: 'CURRENT STREAK'),
           Container(height: 1, color: AppTheme.rule),
-          const SizedBox(height: 24),
+          const SizedBox(height: 12),
+
+          // Colored top-bar accent (matches the catBlocker brick —
+          // "streak" is the goal / protection, not a separate category)
+          Container(
+            height: 4,
+            color: AppTheme.catBlocker,
+          ),
+          const SizedBox(height: 16),
 
           // The streak number ────────────────────────────────────
           Row(
@@ -38,7 +46,7 @@ class StreakWidget extends StatelessWidget {
             ],
           ),
 
-          const SizedBox(height: 24),
+          const SizedBox(height: 16),
           Container(height: 1, color: AppTheme.rule),
           const SizedBox(height: 16),
 
