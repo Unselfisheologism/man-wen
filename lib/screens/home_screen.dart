@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/preferences_service.dart';
 import '../services/site_blocker_service.dart';
+import '../widgets/app_icons.dart';
 import '../widgets/streak_widget.dart';
 import '../widgets/progress_widget.dart';
 import 'site_blocker_settings_screen.dart';
@@ -64,7 +64,7 @@ class _QuickActions extends StatelessWidget {
             },
           ),
           _ActionTile(
-            icon: PhosphorIcons.bell(PhosphorIconsStyle.regular),
+            icon: AppIcons.bell(size: 24, color: Theme.of(context).colorScheme.onSurface),
             title: 'Accountability',
             subtitle: 'Add partner',
             onTap: () {
@@ -75,7 +75,7 @@ class _QuickActions extends StatelessWidget {
             },
           ),
           _ActionTile(
-            icon: PhosphorIcons.gear(PhosphorIconsStyle.regular),
+            icon: AppIcons.gear(size: 24, color: Theme.of(context).colorScheme.onSurface),
             title: 'Settings',
             subtitle: 'Danger hours, sensitivity',
             onTap: () {

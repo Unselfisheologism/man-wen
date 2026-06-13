@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
+import '../widgets/app_icons.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Full implementation of the Urge Surfing feature. Surfaces the 4
@@ -23,21 +23,21 @@ class _UrgeSurfingScreenState extends State<UrgeSurfingScreen> {
   // Technique picker state
   final Map<String, _Technique> _techniques = {
     '4-7-8 Breathing': _Technique(
-      icon: PhosphorIcons.wind(PhosphorIconsStyle.regular),
+      materialIcon: Icons.air, // no SVG provided for wind; using Material
       description:
           'Inhale 4s, hold 7s, exhale 8s. Repeat for 2-5 minutes — '
           'slows your heart rate and gives the urge time to peak and pass.',
       recommendedSeconds: 180,
     ),
     'Cold Shower': _Technique(
-      icon: PhosphorIcons.shower(PhosphorIconsStyle.regular),
+      svgPath: AppIcons.showerPath,
       description:
           '30-60 seconds of cold water on your face and body. Activates '
           'the mammalian dive reflex — a hard physiological reset.',
       recommendedSeconds: 60,
     ),
     'Push-up Challenge': _Technique(
-      icon: PhosphorIcons.barbell(PhosphorIconsStyle.regular),
+      svgPath: AppIcons.barbellPath,
       description:
           'Drop and do as many push-ups as you can (target 20-50). '
           'Physical exhaustion depletes the urge, and the endorphin '
@@ -45,14 +45,14 @@ class _UrgeSurfingScreenState extends State<UrgeSurfingScreen> {
       recommendedSeconds: 180,
     ),
     'Walk Outside': _Technique(
-      icon: PhosphorIcons.personSimpleWalk(PhosphorIconsStyle.regular),
+      svgPath: AppIcons.personSimpleWalkPath,
       description:
           'Leave the room you\'re in. A 10-15 minute walk, ideally '
           'outdoors. The change of scenery and physical movement breaks '
           'the rumination loop the urge feeds on.',
       recommendedSeconds: 900,
     ),
-  );
+  };
 
   // Active session state. null = on the technique picker screen.
   String? _activeTechniqueKey;
@@ -239,7 +239,7 @@ class _UrgeSurfingScreenState extends State<UrgeSurfingScreen> {
               final t = entry.value;
               return Card(
                 child: ListTile(
-                  leading: Icon(t.icon, size: 32, color: Theme.of(context).colorScheme.primary),
+                  leading: t.renderIcon(context, size: 32),
                   title: Text(entry.key, style: const TextStyle(fontWeight: FontWeight.w600)),
                   subtitle: Text(t.description),
                   trailing: const Icon(Icons.chevron_right),
@@ -274,7 +274,7 @@ class _UrgeSurfingScreenState extends State<UrgeSurfingScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const SizedBox(height: 16),
-              Icon(t.icon, size: 96, color: Theme.of(context).colorScheme.primary),
+              t.renderIcon(context, size: 96),
               const SizedBox(height: 24),
               Text(t.description, style: const TextStyle(fontSize: 16)),
               const SizedBox(height: 32),
@@ -295,7 +295,7 @@ class _UrgeSurfingScreenState extends State<UrgeSurfingScreen> {
               const Spacer(),
               ElevatedButton.icon(
                 onPressed: _startSession,
-                icon: Icon(PhosphorIcons.play(PhosphorIconsStyle.regular)),
+                icon: AppIcons.svgIcon(AppIcons.playPath, size: 24),
                 label: const Text('Start session'),
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
@@ -322,7 +322,7 @@ class _UrgeSurfingScreenState extends State<UrgeSurfingScreen> {
           child: Column(
             children: [
               const SizedBox(height: 16),
-              Icon(t.icon, size: 80, color: Theme.of(context).colorScheme.primary),
+              t.renderIcon(context, size: 80),
               const SizedBox(height: 24),
               const Text('Breathe. You\'re doing this.',
                   style: TextStyle(fontSize: 18, color: Colors.grey)),
@@ -404,7 +404,7 @@ class _UrgeSurfingScreenState extends State<UrgeSurfingScreen> {
               const Spacer(),
               ElevatedButton.icon(
                 onPressed: _saveSession,
-                icon: Icon(PhosphorIcons.floppyDisk(PhosphorIconsStyle.regular)),
+                icon: AppIcons.svgIcon(AppIcons.floppyDiskPath, size: 24),
                 label: const Text('Save session'),
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
@@ -419,10 +419,31 @@ class _UrgeSurfingScreenState extends State<UrgeSurfingScreen> {
 }
 
 class _Technique {
-  final IconData icon;
+  /// Raw SVG `<path d="...">` data. If [materialIcon] is also
+  /// provided, the material icon takes precedence.
+  final String? svgPath;
+
+  /// Material IconData fallback (used when no SVG was provided for
+  /// this technique — e.g. breathing has no wind SVG).
+  final IconData? materialIcon;
+
   final String description;
   final int recommendedSeconds;
-  _Technique({required this.icon, required this.description, required this.recommendedSeconds});
+  _Technique({
+    this.svgPath,
+    this.materialIcon,
+    required this.description,
+    required this.recommendedSeconds,
+  }) : assert(svgPath != null || materialIcon != null,
+            'each technique needs an icon');
+
+  Widget renderIcon(BuildContext context, {double size = 32}) {
+    final color = Theme.of(context).colorScheme.primary;
+    if (materialIcon != null) {
+      return Icon(materialIcon, size: size, color: color);
+    }
+    return AppIcons.svgIcon(svgPath!, size: size, color: color);
+  }
 }
 
 class _HistoryTile extends StatelessWidget {
