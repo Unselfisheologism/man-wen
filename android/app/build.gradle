@@ -72,36 +72,19 @@ android {
     }
 }
 
+// NOTE: A previous version of this file pulled in flutter.jar from the SDK
+// engine cache (commit 2cd87d0) as a workaround for the Flutter 3.22 +
+// AGP 8.x com.android.build.OutputFile NoClassDefFoundError. That issue is
+// now fixed by scripts/patch-flutter-sdk.sh which sed-patches the Flutter
+// SDK's flutter.groovy at CI time. With the workaround gone, the Flutter
+// plugin's Maven AAR is the sole source of io.flutter.embedding.* classes
+// and libflutter.so - no more duplicate-class classloader conflict on launch.
+
 flutter {
     source = "../.."
 }
 
-// Add Flutter engine classes from SDK cache (avoids AGP class pollution from Maven AAR)
-def getFlutterEngineDir() {
-    try {
-        String sdk = null
-        // 1. Try local.properties
-        def localProps = rootProject.file("local.properties")
-        if (localProps.exists()) {
-            def props = new Properties()
-            localProps.withInputStream { props.load(it) }
-            sdk = props.getProperty("flutter.sdk")
-        }
-        // 2. Fall back to FLUTTER_ROOT env var
-        if (sdk == null && System.env.FLUTTER_ROOT != null) {
-            sdk = System.env.FLUTTER_ROOT
-        }
-        if (sdk == null) return null
-        def dir = file("$sdk/bin/cache/artifacts/engine/android-arm-release")
-        if (!dir.exists()) dir = file("$sdk/bin/cache/artifacts/engine/android-arm")
-        if (!dir.exists()) return null
-        return dir
-    } catch (Exception ignored) { return null }
-}
-
-def flutterEngineDir = getFlutterEngineDir()
-
- dependencies {
+dependencies {
      // Room
      implementation "androidx.room:room-runtime:2.6.1"
      implementation "androidx.room:room-ktx:2.6.1"
@@ -128,9 +111,4 @@ def flutterEngineDir = getFlutterEngineDir()
      // Core AndroidX libraries
      implementation "androidx.core:core-ktx:1.13.1"
      implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.8.4"
-
-     // Flutter engine classes from SDK cache (avoids Maven AAR AGP pollution)
-     if (flutterEngineDir != null && flutterEngineDir.exists()) {
-         implementation files("$flutterEngineDir/flutter.jar")
-     }
- }
+}
