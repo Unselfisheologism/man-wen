@@ -46,6 +46,10 @@ class StreakWidget extends StatelessWidget {
                   fontWeight: FontWeight.w200,
                   height: 1,
                   letterSpacing: -2,
+                  // Explicit dark — the surface is always a light pink, so
+                  // default theme text would be white in dark mode and
+                  // disappear into the background.
+                  color: Colors.black,
                 ),
               ),
               const SizedBox(width: 8),
@@ -106,6 +110,9 @@ class _StatCell extends StatelessWidget {
             fontSize: 22,
             fontWeight: FontWeight.w600,
             letterSpacing: -0.5,
+            // Same reasoning as the big '0' — explicit dark on the
+            // always-light-pink surface.
+            color: Colors.black,
           ),
         ),
       ],

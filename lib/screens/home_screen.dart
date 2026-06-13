@@ -127,20 +127,25 @@ class _SiteBlockerTileState extends State<_SiteBlockerTile> {
 
   @override
   Widget build(BuildContext context) {
+    // Surface is always a light tint (green.shade50 / grey.shade100) to
+    // signal enabled/disabled state. Default theme text would be white
+    // in dark mode and disappear on these light backgrounds — so we
+    // force explicit dark colors that read in both themes.
+    final iconColor =
+        _isEnabled ? Colors.green.shade700 : Colors.grey.shade700;
     return Card(
       color: _isEnabled ? Colors.green.shade50 : Colors.grey.shade100,
       child: ListTile(
-        leading: Icon(
-          _isEnabled ? Icons.shield : Icons.shield_outlined,
-          color: _isEnabled ? Colors.green : Colors.grey,
-        ),
+        textColor: Colors.black87,
+        iconColor: iconColor,
+        leading: AppIcons.shieldWarning(size: 28, color: iconColor),
         title: const Text('Site Blocker'),
         subtitle: Text(
           _isEnabled
               ? 'Blocking $_blockedCount adult sites'
               : '$_blockedCount sites available to block',
         ),
-        trailing: const Icon(Icons.chevron_right),
+        trailing: Icon(Icons.chevron_right, color: iconColor),
         onTap: () {
           Navigator.push(
             context,

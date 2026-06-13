@@ -34,6 +34,9 @@ class AppIcons {
   static const String playPath =
       'M232.4,114.49,88.32,26.35a16,16,0,0,0-16.2-.3A15.86,15.86,0,0,0,64,39.87V216.13A15.94,15.94,0,0,0,80,232a16.07,16.07,0,0,0,8.36-2.35L232.4,141.51a15.81,15.81,0,0,0,0-27ZM80,215.94V40l143.83,88Z';
 
+  static const String shieldWarningPath =
+      'M120,136V96a8,8,0,0,1,16,0v40a8,8,0,0,1-16,0Zm8,48a12,12,0,1,0-12-12A12,12,0,0,0,128,184ZM224,56v56c0,52.72-25.52,84.67-46.93,102.19-23.06,18.86-46,25.27-47,25.53a8,8,0,0,1-4.2,0c-1-.26-23.91-6.67-47-25.53C57.52,196.67,32,164.72,32,112V56A16,16,0,0,1,48,40H208A16,16,0,0,1,224,56Zm-16,0L48,56l0,56c0,37.3,13.82,67.51,41.07,89.81A128.25,128.25,0,0,0,128,223.62a129.3,129.3,0,0,0,39.41-22.2C194.34,179.16,208,149.07,208,112Z';
+
   // --- Render helper ---
 
   /// Render an inline SVG from a raw `<path d="...">` data string.
@@ -72,4 +75,6 @@ class AppIcons {
       svgIcon(floppyDiskPath, size: size, color: color);
   static Widget play({double size = 24, Color? color}) =>
       svgIcon(playPath, size: size, color: color);
+  static Widget shieldWarning({double size = 24, Color? color}) =>
+      svgIcon(shieldWarningPath, size: size, color: color);
 }
