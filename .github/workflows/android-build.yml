@@ -50,6 +50,7 @@ jobs:
         run: flutter pub get
 
       - name: Setup Signing Keys
+        working-directory: android
         env:
           ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
           ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
@@ -91,6 +92,7 @@ jobs:
 
       - name: Cleanup Secrets
         if: always()
+        working-directory: android
         run: |
           rm -f keystore.jks
           rm -f keystore.properties

@@ -42,16 +42,20 @@ jobs:
         run: flutter pub get
 
       - name: Decode Android keystore
-        if: ${{ env.SIGNING_KEY_STORE_BASE64 != '' }}
+        working-directory: android
         env:
           SIGNING_KEY_STORE_BASE64: ${{ secrets.SIGNING_KEY_STORE_BASE64 }}
           SIGNING_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
           SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
           SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
         run: |
-          echo "$SIGNING_KEY_STORE_BASE64" | base64 --decode > android/app/keystore.jks
-          mkdir -p android/app
-          cp keystore.jks android/app/
+          echo "$SIGNING_KEY_STORE_BASE64" | base64 --decode > app/keystore.jks
+          cat > keystore.properties << EOF
+          storeFile=app/keystore.jks
+          storePassword=$SIGNING_STORE_PASSWORD
+          keyAlias=$SIGNING_KEY_ALIAS
+          keyPassword=$SIGNING_KEY_PASSWORD
+          EOF
 
       - name: Build Android release AAB
         working-directory: ./android
