@@ -7,6 +7,12 @@ import 'screens/home_screen.dart';
 import 'services/preferences_service.dart';
 import 'theme/app_theme.dart';
 
+/// App-wide theme mode, updated when the user picks a different one in
+/// the Settings screen. ManWenApp listens to this and rebuilds the
+/// MaterialApp when it changes.
+final ValueNotifier<ThemeMode> themeModeNotifier =
+    ValueNotifier<ThemeMode>(ThemeMode.system);
+
 void main() {
   // Install BEFORE runApp so the framework error handler is in place from
   // the very first frame. runZonedGuarded catches anything that escapes
@@ -33,12 +39,17 @@ class ManWenApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Man Wen',
-      theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
-      themeMode: ThemeMode.system,
-      home: const AppLauncher(),
+    return ValueListenableBuilder<ThemeMode>(
+      valueListenable: themeModeNotifier,
+      builder: (context, mode, _) {
+        return MaterialApp(
+          title: 'Man Wen',
+          theme: AppTheme.lightTheme,
+          darkTheme: AppTheme.darkTheme,
+          themeMode: mode,
+          home: const AppLauncher(),
+        );
+      },
     );
   }
 }

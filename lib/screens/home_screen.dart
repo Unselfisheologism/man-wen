@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../services/preferences_service.dart';
 import '../services/site_blocker_service.dart';
 import '../widgets/streak_widget.dart';
 import '../widgets/progress_widget.dart';
 import 'site_blocker_settings_screen.dart';
-import 'coming_soon_screen.dart';
+import 'urge_surfing_screen.dart';
+import 'accountability_screen.dart';
+import 'settings_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -55,15 +58,7 @@ class _QuickActions extends StatelessWidget {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (_) => const ComingSoonScreen(
-                    title: 'Urge Surfing',
-                    description: 'Guided 4-7-8 breathing, cold-shower timer, '
-                        'push-up challenge and walk reminders to ride out '
-                        'urges without acting on them.',
-                    icon: Icons.air,
-                  ),
-                ),
+                MaterialPageRoute(builder: (_) => const UrgeSurfingScreen()),
               );
             },
           ),
@@ -74,15 +69,7 @@ class _QuickActions extends StatelessWidget {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (_) => const ComingSoonScreen(
-                    title: 'Accountability Partner',
-                    description: 'Pair with a trusted person who gets a '
-                        'heads-up if you break your streak — the social '
-                        'cost makes relapsing much harder.',
-                    icon: Icons.notifications_active,
-                  ),
-                ),
+                MaterialPageRoute(builder: (_) => const AccountabilityScreen()),
               );
             },
           ),
@@ -93,15 +80,7 @@ class _QuickActions extends StatelessWidget {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (_) => const ComingSoonScreen(
-                    title: 'Settings',
-                    description: 'Configure danger hours, blocking '
-                        'sensitivity, daily check-in reminders, and '
-                        'premium upgrade options.',
-                    icon: Icons.settings,
-                  ),
-                ),
+                MaterialPageRoute(builder: (_) => const SettingsScreen()),
               );
             },
           ),
@@ -136,8 +115,7 @@ class _SiteBlockerTileState extends State<_SiteBlockerTile> {
       count = SiteBlockerService.getBlockedSiteCount();
     } catch (_) {
       // SharedPreferences can throw if the platform plugin response is
-      // malformed. Fall through with defaults — the tile will just show
-      // '0 sites available' until prefs work.
+      // malformed. Fall through with defaults.
     }
     if (!mounted) return;
     setState(() {
