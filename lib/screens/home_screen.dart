@@ -53,7 +53,7 @@ class _QuickActions extends StatelessWidget {
         children: [
           _SiteBlockerTile(),
           _ActionTile(
-            icon: Icons.air,
+            icon: Icon(Icons.air, size: 24, color: Theme.of(context).colorScheme.onSurface),
             title: 'Urge Surfing',
             subtitle: '4-7-8 breathing',
             onTap: () {
