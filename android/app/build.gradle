@@ -39,17 +39,17 @@ android {
                 def keystoreProperties = new Properties()
                 keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
                 def storeFilePath = keystoreProperties.getProperty('storeFile')
-                def storePassword = keystoreProperties.getProperty('storePassword')
-                def keyAlias = keystoreProperties.getProperty('keyAlias')
-                def keyPassword = keystoreProperties.getProperty('keyPassword')
+                def storePasswordVal = keystoreProperties.getProperty('storePassword')
+                def keyAliasVal = keystoreProperties.getProperty('keyAlias')
+                def keyPasswordVal = keystoreProperties.getProperty('keyPassword')
                 if (storeFilePath != null && storeFilePath.trim() != '' &&
-                    storePassword != null && storePassword.trim() != '' &&
-                    keyAlias != null && keyAlias.trim() != '' &&
-                    keyPassword != null && keyPassword.trim() != '') {
+                    storePasswordVal != null && storePasswordVal.trim() != '' &&
+                    keyAliasVal != null && keyAliasVal.trim() != '' &&
+                    keyPasswordVal != null && keyPasswordVal.trim() != '') {
                     storeFile file(storeFilePath)
-                    storePassword storePassword
-                    keyAlias keyAlias
-                    keyPassword keyPassword
+                    storePassword(storePasswordVal)
+                    keyAlias(keyAliasVal)
+                    keyPassword(keyPasswordVal)
                 }
             }
         }
