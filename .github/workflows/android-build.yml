@@ -57,7 +57,7 @@ jobs:
           ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: |
-          echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > keystore.jks
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > app/keystore.jks
           cat > keystore.properties << EOF
           storeFile=keystore.jks
           storePassword=$ANDROID_KEYSTORE_PASSWORD
@@ -94,5 +94,5 @@ jobs:
         if: always()
         working-directory: android
         run: |
-          rm -f keystore.jks
+          rm -f app/keystore.jks
           rm -f keystore.properties
