@@ -39,9 +39,12 @@ jobs:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('android/**/*.gradle*', 'android/gradle/wrapper/gradle-wrapper.properties') }}
+          key: ${{ runner.os }}-gradle-${{ hashFiles('android/**/*.gradle*', 'android/gradle/wrapper/gradle-wrapper.properties', 'scripts/patch-flutter-sdk.sh') }}
           restore-keys: |
             ${{ runner.os }}-gradle-
+
+      - name: Patch Flutter SDK for AGP 8.x OutputFile compat
+        run: bash scripts/patch-flutter-sdk.sh
 
       - name: Get Dependencies
         run: flutter pub get

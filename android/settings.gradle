@@ -20,30 +20,12 @@ plugins {
     id "dev.flutter.flutter-gradle-plugin" version "1.0.0" apply false
 }
 
-// Compile stub for com.android.build.OutputFile (removed in AGP 8.x, needed by Flutter 3.22)
-// Patch Flutter plugin source and provide OutputFile stub (removed in AGP 8.x)
-def flutterSdkStubs = {
-    def props = new Properties()
-    file("local.properties").withInputStream { props.load(it) }
-    return props.getProperty("flutter.sdk")
-}()
-def pluginSrcDir = new File(flutterSdkStubs, "packages/flutter_tools/gradle/src/main/groovy")
-def flutterGroovyFile = new File(pluginSrcDir, "flutter.groovy")
-if (flutterGroovyFile.exists()) {
-    def content = flutterGroovyFile.text
-    if (content.contains("com.android.build.OutputFile")) {
-        logger.lifecycle(">>> Patching flutter.groovy for AGP 8.x OutputFile compatibility...")
-        flutterGroovyFile.text = content.replaceAll("com\\.android\\.build\\.OutputFile", "Object")
-    }
-    // Also place OutputFile.groovy stub in the plugin source so it gets compiled into the JAR
-    def stubFile = new File(pluginSrcDir, "OutputFile.groovy")
-    if (!stubFile.exists()) {
-        logger.lifecycle(">>> Adding OutputFile.groovy stub to Flutter plugin sources...")
-        stubFile.text = """// Stub for AGP 8.x compatibility
-package com.android.build
-public interface OutputFile {}"""
-    }
-}
+// NOTE: Flutter 3.22's flutter.groovy references com.android.build.OutputFile,
+// which was removed in AGP 8.0. The patch is applied in CI by
+// scripts/patch-flutter-sdk.sh before gradle runs, which:
+//   1. sed-replaces the import + usage in the Flutter SDK's flutter.groovy
+//   2. clears the gradle compile cache so the patched source is recompiled
+// For local builds: run `bash scripts/patch-flutter-sdk.sh` before `flutter build apk`.
 
 rootProject.name = 'ManWen'
 include ':app'

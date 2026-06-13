@@ -32,8 +32,11 @@ jobs:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-          key: gradle-${{ runner.os }}-${{ hashFiles('android/**/*.gradle*', 'android/gradle/wrapper/gradle-wrapper.properties') }}
+          key: gradle-${{ runner.os }}-${{ hashFiles('android/**/*.gradle*', 'android/gradle/wrapper/gradle-wrapper.properties', 'scripts/patch-flutter-sdk.sh') }}
           restore-keys: gradle-${{ runner.os }}-
+
+      - name: Patch Flutter SDK for AGP 8.x OutputFile compat
+        run: bash scripts/patch-flutter-sdk.sh
 
       - name: Decode Android keystore
         if: ${{ env.SIGNING_KEY_STORE_BASE64 != '' }}
