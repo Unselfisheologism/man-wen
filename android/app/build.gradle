@@ -144,6 +144,14 @@ def flutterEngineDir = getFlutterEngineDir()
      implementation "androidx.core:core-ktx:1.13.1"
      implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.8.4"
 
+     // androidx.window — REQUIRED by the Flutter engine (ViewUtils.calculateMaximumDisplayMetrics
+     // uses WindowMetricsCalculator on API 30+). Normally pulled transitively via the
+     // engine AAR, but this project loads the engine from a local flutter.jar, so we
+     // must add it explicitly. Without it: app launches, FlutterActivity loads fine,
+     // then onCreate -> setUpFlutterEngine -> FlutterEngine.<init> -> ViewUtils throws
+     // NoClassDefFoundError on androidx/window/layout/WindowMetricsCalculator.
+     implementation "androidx.window:window:1.2.0"
+
      // Flutter engine classes from SDK cache (avoids AGP class pollution from Maven AAR).
      // MUST stay on the runtime classpath (`implementation`, not `compileOnly`) for this
      // project's old-style Flutter Gradle plugin setup (`flutter { source = "../.." }`
