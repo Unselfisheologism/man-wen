@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'analytics_service.dart';
 
 class SiteBlockerService {
   static const String _enabledKey = 'site_blocker_enabled';
@@ -411,6 +412,9 @@ class SiteBlockerService {
     for (final site in getAllBlockedSites()) {
       final siteLower = site.toLowerCase();
       if (host == siteLower || host.endsWith('.$siteLower') || siteLower.contains(host)) {
+        // Side-effect: count this trigger for the analytics page.
+        // Fire-and-forget — don't await inside a sync matcher.
+        AnalyticsService.incrementBlockerFired();
         return true;
       }
     }
@@ -421,6 +425,7 @@ class SiteBlockerService {
     // `reddit.com/r/nsfwxxx` which is a different sub.
     for (final pattern in defaultPathBlocklist) {
       if (lowerUrl == pattern || lowerUrl.startsWith('$pattern/')) {
+        AnalyticsService.incrementBlockerFired();
         return true;
       }
     }
@@ -454,7 +459,14 @@ class SiteBlockerService {
   /// Enable or disable site blocker
   static Future<void> setEnabled(bool enabled) async {
     final prefs = await SharedPreferences.getInstance();
+    final wasEnabled = prefs.getBool(_enabledKey) ?? false;
     await prefs.setBool(_enabledKey, enabled);
+    // Track "user turned it off" separately from "user turned it on",
+    // because the disable event is the meaningful one for relapse
+    // analytics — the enable is the recovery.
+    if (wasEnabled && !enabled) {
+      await AnalyticsService.incrementBlockerDisabled();
+    }
   }
 
   /// Check if blocker is actively running

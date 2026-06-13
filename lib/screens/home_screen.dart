@@ -8,6 +8,7 @@ import 'site_blocker_settings_screen.dart';
 import 'urge_surfing_screen.dart';
 import 'accountability_screen.dart';
 import 'settings_screen.dart';
+import 'analytics_screen.dart';
 
 /// Home — the editorial spread, now in color.
 ///
@@ -99,6 +100,18 @@ class HomeScreen extends StatelessWidget {
                 onTap: () => Navigator.push(
                   context,
                   MaterialPageRoute(builder: (_) => const SettingsScreen()),
+                ),
+              ),
+              const SizedBox(height: 8),
+              _ColorCard(
+                number: '04·05',
+                color: AppTheme.catStats,
+                iconWidget: const Icon(Icons.bar_chart, size: 22, color: AppTheme.paper),
+                title: 'ANALYTICS',
+                subtitle: 'STREAKS  ·  URGES  ·  BLOCKER  ·  SESSIONS',
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const AnalyticsScreen()),
                 ),
               ),
               const SizedBox(height: 4),
