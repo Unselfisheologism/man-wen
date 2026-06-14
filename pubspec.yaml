@@ -22,6 +22,19 @@ dependencies:
   # Pigeon channel or (b) the CI is bumped to a newer Dart, we
   # have to stay pinned here.
   shared_preferences: '>=2.3.0 <2.3.4'
+
+# Force the *native* side to the same pre-Pigeon, pre-Dart-3.5
+# version. Pinning just `shared_preferences` above is not enough
+# because `shared_preferences_android` is a separate package
+# pulled in transitively, and its own constraint allows 2.5+ (the
+# Pigeon version). dependency_overrides forces the resolver to
+# pick these exact versions regardless of what transitive
+# constraints say.
+dependency_overrides:
+  shared_preferences: '>=2.3.0 <2.3.4'
+  shared_preferences_android: '>=2.3.0 <2.3.4'
+  shared_preferences_foundation: '>=2.3.0 <2.3.4'  # macOS / iOS
+  shared_preferences_web: '>=2.3.0 <2.3.4'         # web
   provider: ^6.1.1
   flutter_svg: ^2.0.10+1
   pdf_render: ^1.4.12
