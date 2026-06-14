@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart_crash_reporter.dart';
-import 'screens/onboarding_screen.dart';
 import 'screens/home_screen.dart';
 import 'services/preferences_service.dart';
 import 'theme/app_theme.dart';
@@ -48,44 +47,9 @@ class ManWenApp extends StatelessWidget {
           theme: AppTheme.light,
           darkTheme: AppTheme.dark,
           themeMode: mode,
-          home: const AppLauncher(),
+          home: const HomeScreen(),
         );
       },
     );
-  }
-}
-
-class AppLauncher extends StatefulWidget {
-  const AppLauncher({super.key});
-
-  @override
-  State<AppLauncher> createState() => _AppLauncherState();
-}
-
-class _AppLauncherState extends State<AppLauncher> {
-  @override
-  void initState() {
-    super.initState();
-    _navigate();
-  }
-
-  Future<void> _navigate() async {
-    await Future.delayed(const Duration(milliseconds: 500));
-    if (!mounted) return;
-    bool onboarded = false;
-    try {
-      onboarded = await PreferencesService.isOnboardingComplete();
-    } catch (e, s) {
-      DartCrashReporter.report('isOnboardingComplete failed', e, s);
-    }
-    if (!mounted) return;
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (_) => onboarded ? const HomeScreen() : const OnboardingScreen()),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return const Scaffold(body: Center(child: CircularProgressIndicator()));
   }
 }

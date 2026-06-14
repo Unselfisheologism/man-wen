@@ -7,9 +7,6 @@ class PreferencesService {
     _prefs = await SharedPreferences.getInstance();
   }
 
-  static Future<bool> isOnboardingComplete() async => _prefs.getBool('onboarding_complete') ?? false;
-  static Future<void> setOnboardingComplete(bool v) async => await _prefs.setBool('onboarding_complete', v);
-
   static Future<bool> isPremium() async => _prefs.getBool('is_premium') ?? false;
   static Future<void> setPremium(bool v) async => await _prefs.setBool('is_premium', v);
 }
