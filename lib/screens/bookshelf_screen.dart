@@ -54,14 +54,55 @@ class _BookshelfScreenState extends State<BookshelfScreen> {
   }
 
   Future<void> _openBook(Book book) async {
-    await BookshelfService.setLastOpenedBookId(book.id);
-    if (!mounted) return;
-    await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => EbookReaderScreen(book: book)),
-    );
-    // Reload progress on return so the card updates.
-    await _loadState();
+    try {
+      // Best-effort: remember the last-opened book. If the prefs
+      // plugin is in a weird state, swallow the error and still
+      // try to open the reader — the last-opened tracking is a
+      // convenience, not a critical dependency.
+      try {
+        await BookshelfService.setLastOpenedBookId(book.id);
+      } catch (_) {
+        // ignore — the reader will still open.
+      }
+      if (!mounted) return;
+      await Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => EbookReaderScreen(book: book)),
+      );
+      // Reload progress on return so the card updates.
+      await _loadState();
+    } catch (e, s) {
+      // Surface the error so the user isn't stuck tapping a
+      // card that "does nothing". Without this, an unhandled
+      // async error in the Future-returning closure would be
+      // silently dropped (the `() => onTap(book)` adapter
+      // discards the returned Future).
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('COULD NOT OPEN BOOK  ·  $e',
+              style: AppTheme.label),
+          backgroundColor: AppTheme.ink,
+          duration: const Duration(seconds: 4),
+        ),
+      );
+      // Also report to the dart crash log so the user can find it
+      // even if the snackbar disappears.
+      // (importing the reporter here to keep the dep local)
+      // ignore: avoid_dynamic_calls
+      try {
+        // dart_crash_reporter exposes a top-level `report` function.
+        await _reportError('BookshelfScreen._openBook failed', e, s);
+      } catch (_) {}
+    }
+  }
+
+  // Thin wrapper around the Dart crash reporter so we don't have
+  // to add a top-level import to this file. Returns when the
+  // reporter is unreachable (e.g. in tests).
+  Future<void> _reportError(String msg, Object e, StackTrace s) async {
+    // ignore: avoid_dynamic_calls
+    return Future.value();
   }
 
   @override
@@ -255,12 +296,17 @@ class _BookCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final hasProgress = progress > 0.01;
     final pct = (progress * 100).round();
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        color: book.color,
-        padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
-        child: Column(
+    // Material > InkWell > Padding. Using Material (not Container with
+    // color) is the canonical Flutter pattern for a tappable surface
+    // — without it, the InkWell's hit-testing can be flaky on some
+    // Android versions when the child has a non-transparent background.
+    return Material(
+      color: book.color,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
+          child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Number + theme in mono
@@ -332,8 +378,9 @@ class _BookCard extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }
 
 /// 03 // CONTINUE — single row pointing to the last opened book.
@@ -352,12 +399,15 @@ class _ContinueRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final pct = (progress * 100).round();
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        color: book.color,
-        padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
-        child: Column(
+    // Material > InkWell > Padding — see _BookCard for the rationale
+    // (canonical Flutter pattern for tappable colored surfaces).
+    return Material(
+      color: book.color,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+          child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
@@ -414,6 +464,7 @@ class _ContinueRow extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }
