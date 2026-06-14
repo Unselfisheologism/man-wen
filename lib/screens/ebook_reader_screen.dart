@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -364,28 +363,18 @@ class _PdfPageWidgetState extends State<_PdfPageWidget> {
         _placeholderHeight = screenWidth * 1.3;
       });
 
-      final page = widget.doc.pages[widget.pageNumber];
+      // pdf_render 1.4.x API: pages are 1-indexed, getPage is async,
+      // render(width, height) renders the full page at that size in
+      // pixels, and createImageDetached() returns a Flutter ui.Image
+      // directly (no need for raw decodeImageFromPixels).
+      final page = await widget.doc.getPage(widget.pageNumber + 1);
       final pageImage = await page.render(
         x: 0,
         y: 0,
         width: renderWidth,
         height: renderHeight,
-        fullWidth: renderWidth,
-        fullHeight: renderHeight,
       );
-
-      // Convert raw RGBA pixels to a Flutter ui.Image so we can
-      // pass it to RawImage. This is the standard way to display
-      // a pixel buffer in Flutter.
-      final completer = Completer<ui.Image>();
-      ui.decodeImageFromPixels(
-        pageImage.pixels,
-        pageImage.width,
-        pageImage.height,
-        ui.PixelFormat.rgba8888,
-        (ui.Image img) => completer.complete(img),
-      );
-      final image = await completer.future;
+      final image = await pageImage.createImageDetached();
       if (!mounted) return;
       setState(() {
         _image = image;
