@@ -110,7 +110,7 @@ class _EbookReaderScreenState extends State<EbookReaderScreen> {
                 : _loadedText!;
             Clipboard.setData(ClipboardData(
                 text:
-                    '${widget.title} — ${widget.author}\n\n$preview'));
+                    '${widget.book.title} — ${widget.book.author}\n\n$preview'));
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
                 content: Text('First lines copied to clipboard',
