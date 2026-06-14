@@ -9,6 +9,7 @@ import 'urge_surfing_screen.dart';
 import 'accountability_screen.dart';
 import 'settings_screen.dart';
 import 'analytics_screen.dart';
+import 'bookshelf_screen.dart';
 
 /// Home — the editorial spread, now in color.
 ///
@@ -114,6 +115,19 @@ class HomeScreen extends StatelessWidget {
                   MaterialPageRoute(builder: (_) => const AnalyticsScreen()),
                 ),
               ),
+              const SizedBox(height: 8),
+              _ColorCard(
+                number: '04·06',
+                color: AppTheme.catBook,
+                iconWidget: const Icon(Icons.menu_book_rounded, size: 22, color: AppTheme.paper),
+                title: 'BOOKSHELF',
+                subtitle: 'READ SOMETHING  ·  DO SOMETHING BETTER',
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) => const BookshelfScreen()),
+                ),
+              ),
               const SizedBox(height: 4),
 
               // 05 // STATUS — a row of small category swatches ─
@@ -128,12 +142,14 @@ class HomeScreen extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Row(
                   children: [
-                    // 4 category swatches + 1 active dot
+                    // 6 category swatches (one per action tile) + ARMED
                     _Swatch(color: AppTheme.catBlocker),
                     _Swatch(color: AppTheme.catUrge),
                     _Swatch(color: AppTheme.catAccount),
                     _Swatch(color: AppTheme.catSetting),
-                    const SizedBox(width: 16),
+                    _Swatch(color: AppTheme.catStats),
+                    _Swatch(color: AppTheme.catBook),
+                    const SizedBox(width: 12),
                     Text('ARMED',
                         style: AppTheme.label
                             .copyWith(color: AppTheme.ink)),

@@ -56,6 +56,7 @@ class AppTheme {
   static const Color catAccount = Color(0xFF3F6B4F);  // forest  — trust
   static const Color catSetting = Color(0xFF2E3D6B);  // indigo  — controls
   static const Color catStats   = Color(0xFF4A7E9B);  // teal    — analytics
+  static const Color catBook    = Color(0xFF5C3D2E);  // umber   — bookshelf (do something better)
 
   // ── Typography ────────────────────────────────────────────────
   /// Monospaced family for labels, section numbers, data.
