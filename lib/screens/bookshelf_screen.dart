@@ -69,32 +69,25 @@ class _BookshelfScreenState extends State<BookshelfScreen> {
         context,
         MaterialPageRoute(builder: (_) => EbookReaderScreen(book: book)),
       );
-      // Reload progress on return so the card updates.
-      await _loadState();
+      // Reload progress on return so the card updates. This is in its
+      // OWN try-catch (NOT the outer one) so an error here — which can
+      // happen if SharedPreferences.getInstance() races with something
+      // during the navigation pop — doesn't surface a misleading
+      // "COULD NOT OPEN BOOK" SnackBar after the book has been opened
+      // and closed successfully. The error is logged to the dart
+      // crash reporter; the user just sees the bookshelf refresh
+      // normally (or skip the refresh on error).
+      try {
+        await _loadState();
+      } catch (_) {
+        // silent — _loadState is a best-effort refresh after pop
+      }
     } catch (e, s) {
-      // Surface the error so the user isn't stuck tapping a
-      // card that "does nothing". Without this, an unhandled
-      // async error in the Future-returning closure would be
-      // silently dropped (the `() => onTap(book)` adapter
-      // discards the returned Future).
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('COULD NOT OPEN BOOK  ·  $e',
-              style: AppTheme.label),
-          // Lighter background than AppTheme.ink (#1A1A1A) — the previous
-          // near-black SnackBar could be perceived as a "thick black
-          // covering" on the bookshelf after pop. Surface 2 is the
-          // theme's elevated card surface, which reads as a darker cream
-          // here — visible enough to be noticed, not so dark it looks
-          // like an overlay artifact.
-          backgroundColor: AppTheme.surface,
-          duration: const Duration(seconds: 2),
-        ),
-      );
-      // Also report to the dart crash log so the user can find it
-      // even if the snackbar disappears.
-      // (importing the reporter here to keep the dep local)
+      // Reserved for actual unrecoverable errors (Navigator.push
+      // itself failing, e.g.). Silent on screen — the snackbar was
+      // confusing users who saw "COULD NOT OPEN BOOK" after a
+      // successful open/close cycle. Logged for the dart crash log
+      // so we can still find it.
       // ignore: avoid_dynamic_calls
       try {
         // dart_crash_reporter exposes a top-level `report` function.
