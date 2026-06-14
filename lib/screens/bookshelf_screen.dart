@@ -25,11 +25,11 @@ class BookshelfScreen extends StatefulWidget {
 }
 
 class _BookshelfScreenState extends State<BookshelfScreen> {
-  // Per-book last-read PAGE NUMBER (0-indexed). Keyed by book.id.
-  // Loaded on init and refreshed when we come back from the reader
-  // (so tapping a book, reading, and coming back shows the new
-  // page without a full restart).
-  final Map<String, int> _progress = {};
+  // Per-book reading progress (0.0–1.0). Keyed by book.id. Loaded
+  // on init and refreshed when we come back from the reader (so
+  // tapping a book, reading, and coming back shows the new
+  // progress without a full restart).
+  final Map<String, double> _progress = {};
 
   // Last opened book ID, for the "CONTINUE" row.
   String? _lastOpenedId;
@@ -43,21 +43,22 @@ class _BookshelfScreenState extends State<BookshelfScreen> {
   Future<void> _loadState() async {
     // Small delay to let the reader's fire-and-forget save (in its
     // dispose) finish writing to the platform before we try to read.
-    // Without this, the bookshelf's getLastPage calls can race with
-    // the in-flight setLastPage from the reader, producing a Platform
+    // Without this, the bookshelf's getProgress calls can race with
+    // the in-flight setDouble from the reader, producing a Platform
     // error that propagates up and surfaces as a SnackBar.
     await Future.delayed(const Duration(milliseconds: 120));
 
-    // Per-book last page. Sequential awaits (not Future.wait) so a
+    // Per-book progress. Sequential awaits (not Future.wait) so a
     // single failure doesn't tank the whole load. Each call is in
-    // its own try-catch — a transient prefs error on one book just
-    // leaves that book's page at 0 instead of breaking the rest.
-    final pages = <String, int>{};
+    // its own try-catch — a bad key or a transient prefs error on
+    // one book just leaves that book's progress at 0.0 instead of
+    // breaking the rest.
+    final progress = <String, double>{};
     for (final book in BookshelfService.catalog) {
       try {
-        pages[book.id] = await BookshelfService.getLastPage(book.id);
+        progress[book.id] = await BookshelfService.getProgress(book.id);
       } catch (_) {
-        pages[book.id] = 0;
+        progress[book.id] = 0.0;
       }
     }
     // Last-opened book id.
@@ -71,7 +72,7 @@ class _BookshelfScreenState extends State<BookshelfScreen> {
     setState(() {
       _progress
         ..clear()
-        ..addAll(pages);
+        ..addAll(progress);
       _lastOpenedId = lastId;
     });
   }
@@ -176,8 +177,8 @@ class _BookshelfScreenState extends State<BookshelfScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: _ContinueRow(
                     book: lastOpenedBook,
-                    lastPage:
-                        _progress[lastOpenedBook.id] ?? 0,
+                    progress:
+                        _progress[lastOpenedBook.id] ?? 0.0,
                     onTap: () => _openBook(lastOpenedBook),
                   ),
                 ),
@@ -249,7 +250,7 @@ class _Masthead extends StatelessWidget {
 /// form factor.
 class _LibraryGrid extends StatelessWidget {
   final List<Book> books;
-  final Map<String, int> progress; // last-read page per book
+  final Map<String, double> progress;
   final void Function(Book) onTap;
 
   const _LibraryGrid({
@@ -285,7 +286,7 @@ class _LibraryGrid extends StatelessWidget {
               return _BookCard(
                 book: book,
                 number: '${(i + 1).toString().padLeft(2, '0')}',
-                lastPage: progress[book.id] ?? 0,
+                progress: progress[book.id] ?? 0.0,
                 onTap: () => onTap(book),
               );
             },
@@ -304,19 +305,20 @@ class _LibraryGrid extends StatelessWidget {
 class _BookCard extends StatelessWidget {
   final Book book;
   final String number;
-  final int lastPage; // 0 = never opened
+  final double progress; // 0.0 = never opened, 1.0 = finished
   final VoidCallback onTap;
 
   const _BookCard({
     required this.book,
     required this.number,
-    required this.lastPage,
+    required this.progress,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    final hasProgress = lastPage > 0;
+    final hasProgress = progress > 0.01;
+    final pct = (progress * 100).round();
     // Material > InkWell > Padding. Using Material (not Container with
     // color) is the canonical Flutter pattern for a tappable surface
     // — without it, the InkWell's hit-testing can be flaky on some
@@ -370,25 +372,29 @@ class _BookCard extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 10),
-            // Status: READY / READING. We don't have a total page
-            // count for the book at the card level (that's loaded
-            // when the reader opens the PDF), so we just signal
-            // "started vs not started" — no percentage.
+            // Status: hairline rule + READING NN% / READY
             Container(
               height: 1,
               color: AppTheme.paper.withOpacity(0.3),
             ),
             const SizedBox(height: 6),
             if (hasProgress)
-              Text('READING',
-                  style: AppTheme.label.copyWith(color: AppTheme.paper))
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('READING',
+                      style: AppTheme.label.copyWith(color: AppTheme.paper)),
+                  Text('$pct%',
+                      style: AppTheme.label.copyWith(color: AppTheme.paper)),
+                ],
+              )
             else
               Text('READY',
                   style: AppTheme.label.copyWith(color: AppTheme.paper)),
           ],
         ),
       ),
-    ));
+    );
   }
 }
 
@@ -396,17 +402,18 @@ class _BookCard extends StatelessWidget {
 /// Solid color block, "RESUME" call-to-action, thin progress bar.
 class _ContinueRow extends StatelessWidget {
   final Book book;
-  final int lastPage; // 0 = never opened
+  final double progress; // 0.0 = never opened
   final VoidCallback onTap;
 
   const _ContinueRow({
     required this.book,
-    required this.lastPage,
+    required this.progress,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
+    final pct = (progress * 100).round();
     // Material > InkWell > Padding — see _BookCard for the rationale
     // (canonical Flutter pattern for tappable colored surfaces).
     return Material(
@@ -424,11 +431,10 @@ class _ContinueRow extends StatelessWidget {
               children: [
                 Text('RESUME',
                     style: AppTheme.label.copyWith(color: AppTheme.paper)),
-                if (lastPage > 0)
-                  Text('PAGE ${lastPage + 1}',
-                      style: AppTheme.label.copyWith(
-                        color: AppTheme.paper.withOpacity(0.85),
-                      )),
+                Text('$pct%',
+                    style: AppTheme.label.copyWith(
+                      color: AppTheme.paper.withOpacity(0.85),
+                    )),
               ],
             ),
             const SizedBox(height: 10),
@@ -453,9 +459,26 @@ class _ContinueRow extends StatelessWidget {
                 color: AppTheme.paper.withOpacity(0.85),
               ),
             ),
+            const SizedBox(height: 10),
+            // 1px hairline + a 1px filled bar in paper to show progress
+            Stack(
+              children: [
+                Container(
+                  height: 2,
+                  color: AppTheme.paper.withOpacity(0.25),
+                ),
+                FractionallySizedBox(
+                  widthFactor: progress.clamp(0.0, 1.0),
+                  child: Container(
+                    height: 2,
+                    color: AppTheme.paper,
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
       ),
-    ));
+    );
   }
 }

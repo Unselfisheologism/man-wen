@@ -43,7 +43,6 @@ dependency_overrides:
   # toARGB32 adoption.
   flutter_svg: '>=2.0.0 <2.1.0'
   provider: ^6.1.1
-  pdf_render: ^1.4.12
 
 dev_dependencies:
   flutter_test:
