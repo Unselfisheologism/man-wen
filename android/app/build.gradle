@@ -152,6 +152,14 @@ def flutterEngineDir = getFlutterEngineDir()
      // NoClassDefFoundError on androidx/window/layout/WindowMetricsCalculator.
      implementation "androidx.window:window:1.2.0"
 
+     // androidx.collection — needed by the vendored pdf_render plugin
+     // (PdfRenderPlugin.kt uses androidx.collection.LongSparseArray).
+     // The plugin's native Maven AAR isn't reachable in this project's
+     // old-style Gradle setup, so we vendor the plugin's Java/Kotlin
+     // source into android/app/src/main/java/jp/espresso3389/pdf_render/
+     // and just add the collections dependency here.
+     implementation "androidx.collection:collection:1.4.0"
+
      // Flutter engine classes from SDK cache (avoids AGP class pollution from Maven AAR).
      // MUST stay on the runtime classpath (`implementation`, not `compileOnly`) for this
      // project's old-style Flutter Gradle plugin setup (`flutter { source = "../.." }`
