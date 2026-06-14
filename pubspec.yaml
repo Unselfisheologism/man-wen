@@ -41,7 +41,6 @@ dependency_overrides:
   # at compile. Cap at <2.2.4 to stay on the pre-toARGB32 line.
   flutter_svg: '>=2.0.0 <2.2.4'
   provider: ^6.1.1
-  flutter_svg: ^2.0.10+1
   pdf_render: ^1.4.12
 
 dev_dependencies:
