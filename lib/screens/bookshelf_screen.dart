@@ -388,7 +388,7 @@ class _BookCard extends StatelessWidget {
           ],
         ),
       ),
-    );
+    ));
   }
 }
 
@@ -456,6 +456,6 @@ class _ContinueRow extends StatelessWidget {
           ],
         ),
       ),
-    );
+    ));
   }
 }

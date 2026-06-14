@@ -364,7 +364,7 @@ class _PdfPageWidgetState extends State<_PdfPageWidget> {
         _placeholderHeight = screenWidth * 1.3;
       });
 
-      final page = widget.doc[widget.pageNumber];
+      final page = widget.doc.pages[widget.pageNumber];
       final pageImage = await page.render(
         x: 0,
         y: 0,
