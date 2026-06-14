@@ -41,14 +41,38 @@ class _BookshelfScreenState extends State<BookshelfScreen> {
   }
 
   Future<void> _loadState() async {
-    final entries = await Future.wait(BookshelfService.catalog
-        .map((b) => BookshelfService.getProgress(b.id)));
-    final lastId = await BookshelfService.getLastOpenedBookId();
+    // Small delay to let the reader's fire-and-forget save (in its
+    // dispose) finish writing to the platform before we try to read.
+    // Without this, the bookshelf's getProgress calls can race with
+    // the in-flight setDouble from the reader, producing a Platform
+    // error that propagates up and surfaces as a SnackBar.
+    await Future.delayed(const Duration(milliseconds: 120));
+
+    // Per-book progress. Sequential awaits (not Future.wait) so a
+    // single failure doesn't tank the whole load. Each call is in
+    // its own try-catch — a bad key or a transient prefs error on
+    // one book just leaves that book's progress at 0.0 instead of
+    // breaking the rest.
+    final progress = <String, double>{};
+    for (final book in BookshelfService.catalog) {
+      try {
+        progress[book.id] = await BookshelfService.getProgress(book.id);
+      } catch (_) {
+        progress[book.id] = 0.0;
+      }
+    }
+    // Last-opened book id.
+    String? lastId;
+    try {
+      lastId = await BookshelfService.getLastOpenedBookId();
+    } catch (_) {
+      lastId = null;
+    }
     if (!mounted) return;
     setState(() {
-      for (var i = 0; i < BookshelfService.catalog.length; i++) {
-        _progress[BookshelfService.catalog[i].id] = entries[i];
-      }
+      _progress
+        ..clear()
+        ..addAll(progress);
       _lastOpenedId = lastId;
     });
   }

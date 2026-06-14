@@ -39,13 +39,20 @@ class _EbookReaderScreenState extends State<EbookReaderScreen> {
     _textFuture = BookshelfService.loadBookText(widget.book);
     _scroll.addListener(_onScroll);
     // Restore last position asynchronously after the first frame so
-    // the ScrollController has an extent to jump to.
+    // the ScrollController has an extent to jump to. We also try-with-
+    // recover: if the prefs call races with something during initial
+    // load, we just open at the top instead of throwing into the
+    // FutureBuilder's error path.
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final p = await BookshelfService.getProgress(widget.book.id);
-      if (!mounted) return;
-      if (p > 0.01 && _scroll.hasClients) {
-        final max = _scroll.position.maxScrollExtent;
-        _scroll.jumpTo(max * p);
+      try {
+        final p = await BookshelfService.getProgress(widget.book.id);
+        if (!mounted) return;
+        if (p > 0.01 && _scroll.hasClients) {
+          final max = _scroll.position.maxScrollExtent;
+          _scroll.jumpTo(max * p);
+        }
+      } catch (_) {
+        // silent — open at the top on prefs failure
       }
     });
   }
@@ -53,8 +60,21 @@ class _EbookReaderScreenState extends State<EbookReaderScreen> {
   @override
   void dispose() {
     _saveDebounce?.cancel();
-    // Final save on the way out. Don't await — we're in dispose.
-    BookshelfService.setProgress(widget.book.id, _progress);
+    // Final save on the way out. The Timer was cancelled above, so
+    // any pending throttled save is dropped — we make one last save
+    // HERE. Don't await — we're in dispose. The Future is also
+    // wrapped in try/catch via the error handler below so a prefs
+    // write that races with the in-flight bookshelf reload doesn't
+    // produce an unhandled error.
+    final bookId = widget.book.id;
+    final progress = _progress;
+    Future<void>(() async {
+      try {
+        await BookshelfService.setProgress(bookId, progress);
+      } catch (_) {
+        // silent — best effort on exit
+      }
+    });
     _scroll.removeListener(_onScroll);
     _scroll.dispose();
     super.dispose();
@@ -71,7 +91,13 @@ class _EbookReaderScreenState extends State<EbookReaderScreen> {
 
   void _scheduleSave() {
     _saveDebounce?.cancel();
-    _saveDebounce = Timer(const Duration(milliseconds: 1500), () {
+    // Shorter debounce (300ms instead of 1500ms) so the saved
+    // position stays close to the user's actual scroll position
+    // when they pop the reader. With 1500ms, a user who reads
+    // quickly and then closes within the debounce window would
+    // lose up to 1.5s of progress. With 300ms, the worst case
+    // is ~0.3s.
+    _saveDebounce = Timer(const Duration(milliseconds: 300), () {
       BookshelfService.setProgress(widget.book.id, _progress);
     });
   }
