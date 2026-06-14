@@ -1,10 +1,18 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../data/book_summaries.dart';
 import '../models/book.dart';
 import '../services/bookshelf_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/book_text_parser.dart';
+
+/// Which sub-view of the reader is currently active. The reader
+/// has two tabs: TEXT (the actual book) and SUMMARY (an editorial
+/// pitch written by us, ~300 words, plus a chapter index). The
+/// tab state is local to the screen — closing the reader resets
+/// it back to TEXT.
+enum _ReaderTab { text, summary }
 
 /// Ebook reader — Man Wen-ified formatted-text reader.
 ///
@@ -36,9 +44,8 @@ class _EbookReaderScreenState extends State<EbookReaderScreen> {
   String? _loadedText;
   final ScrollController _scroll = ScrollController();
   double _progress = 0.0;
-  bool _isLoading = true;
-  String? _loadError;
   Timer? _saveDebounce;
+  _ReaderTab _tab = _ReaderTab.text;
 
   @override
   void initState() {
@@ -148,89 +155,87 @@ class _EbookReaderScreenState extends State<EbookReaderScreen> {
     return Scaffold(
       backgroundColor: AppTheme.paper,
       body: SafeArea(
-        child: FutureBuilder<String>(
-          future: _textFuture,
-          builder: (context, snap) {
-            if (snap.connectionState == ConnectionState.waiting) {
-              return Column(
-                children: [
-                  _ReaderTopBar(book: widget.book, onMenu: () {}),
-                  const Expanded(
-                    child: Center(
-                        child: CircularProgressIndicator(
-                            color: AppTheme.accent)),
-                  ),
-                  _ReaderBottomBarPlaceholder(book: widget.book),
-                ],
-              );
-            }
-            if (snap.hasError || !snap.hasData) {
-              return Column(
-                children: [
-                  _ReaderTopBar(book: widget.book, onMenu: () {}),
-                  Expanded(
-                    child: Center(
-                      child: Padding(
-                        padding: const EdgeInsets.all(32),
-                        child: Text(
-                          'COULD NOT LOAD TEXT\n\n${snap.error ?? 'unknown error'}',
-                          textAlign: TextAlign.center,
-                          style: AppTheme.label
-                              .copyWith(color: AppTheme.accent),
-                        ),
-                      ),
-                    ),
-                  ),
-                  _ReaderBottomBarPlaceholder(book: widget.book),
-                ],
-              );
-            }
-            // Cache the loaded text and restore scroll position on
-            // the first build. The side effect in build is a known
-            // anti-pattern but the Flutter team uses it in their
-            // own code for the same case (FutureBuilder + restore).
-            if (_loadedText == null) {
-              _loadedText = snap.data!;
-              WidgetsBinding.instance
-                  .addPostFrameCallback((_) => _restoreScrollAfterFirstFrame());
-            }
-            final blocks = BookTextParser.parse(snap.data!);
-            return Column(
-              children: [
-                _ReaderTopBar(book: widget.book, onMenu: _showMenu),
-                Expanded(
-                  child: _ReaderBody(
-                    book: widget.book,
-                    blocks: blocks,
-                    scroll: _scroll,
-                  ),
-                ),
-                _ReaderBottomBar(
-                  book: widget.book,
-                  progress: _progress,
-                ),
-              ],
-            );
-          },
+        child: Column(
+          children: [
+            _ReaderTopBar(book: widget.book, onMenu: _showMenu),
+            _ReaderTabBar(
+              current: _tab,
+              onChanged: (t) => setState(() => _tab = t),
+              bookColor: widget.book.color,
+            ),
+            Expanded(
+              child: _tab == _ReaderTab.text
+                  ? _buildTextTab()
+                  : _buildSummaryTab(),
+            ),
+            _ReaderBottomBar(
+              book: widget.book,
+              progress: _tab == _ReaderTab.text ? _progress : 0.0,
+            ),
+          ],
         ),
       ),
     );
   }
 
-  void _onTextLoaded(String text) {
-    if (_loadedText != null) return; // only once
-    setState(() {
-      _loadedText = text;
-      _isLoading = false;
-    });
-    _restoreScrollAfterFirstFrame();
+  /// The TEXT tab — loads the book text from the asset, parses it
+  /// into chapter blocks, and renders it as a scrolling reader
+  /// with the bottom bar tracking scroll progress.
+  Widget _buildTextTab() {
+    return FutureBuilder<String>(
+      future: _textFuture,
+      builder: (context, snap) {
+        if (snap.connectionState == ConnectionState.waiting) {
+          return const Center(
+            child: CircularProgressIndicator(color: AppTheme.accent),
+          );
+        }
+        if (snap.hasError || !snap.hasData) {
+          return Center(
+            child: Padding(
+              padding: const EdgeInsets.all(32),
+              child: Text(
+                'COULD NOT LOAD TEXT\n\n${snap.error ?? 'unknown error'}',
+                textAlign: TextAlign.center,
+                style: AppTheme.label.copyWith(color: AppTheme.accent),
+              ),
+            ),
+          );
+        }
+        if (_loadedText == null) {
+          _loadedText = snap.data!;
+          WidgetsBinding.instance
+              .addPostFrameCallback((_) => _restoreScrollAfterFirstFrame());
+        }
+        final blocks = BookTextParser.parse(snap.data!);
+        return _ReaderBody(
+          book: widget.book,
+          blocks: blocks,
+          scroll: _scroll,
+        );
+      },
+    );
   }
 
-  void _onTextError(Object e) {
-    setState(() {
-      _loadError = e.toString();
-      _isLoading = false;
-    });
+  /// The SUMMARY tab — renders the hand-written editorial pitch
+  /// for the book, plus a chapter index if the book has one.
+  /// No async loading — the summary lives in code.
+  Widget _buildSummaryTab() {
+    final summary = summaryFor(widget.book);
+    if (summary == null) {
+      // Shouldn't happen — every book in the catalog has a
+      // summary. But fall back gracefully rather than crash.
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Text(
+            'No summary available for this book.',
+            style: AppTheme.label,
+          ),
+        ),
+      );
+    }
+    return _SummaryBody(book: widget.book, summary: summary);
   }
 }
 
@@ -537,26 +542,6 @@ class _ReaderBottomBar extends StatelessWidget {
   }
 }
 
-/// Placeholder bottom bar (used while the text is loading) so the
-/// bar height doesn't jump when the real bar appears.
-class _ReaderBottomBarPlaceholder extends StatelessWidget {
-  final Book book;
-  const _ReaderBottomBarPlaceholder({required this.book});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 50,
-      color: AppTheme.paper,
-      decoration: const BoxDecoration(
-        border: Border(
-          top: BorderSide(color: AppTheme.rule, width: 1),
-        ),
-      ),
-    );
-  }
-}
-
 /// The 3-dot menu — full-screen sheet. Options:
 ///   - Jump to top
 ///   - Jump to bottom
@@ -621,6 +606,195 @@ class _MenuRow extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 14),
         child: Text(label, style: AppTheme.label.copyWith(color: AppTheme.ink)),
+      ),
+    );
+  }
+}
+
+/// Two-tab bar below the top bar. Mono labels, hairline rules,
+/// active tab underlined in the book's color. Tapping switches
+/// the body between the TEXT reader and the SUMMARY view.
+class _ReaderTabBar extends StatelessWidget {
+  final _ReaderTab current;
+  final ValueChanged<_ReaderTab> onChanged;
+  final Color bookColor;
+
+  const _ReaderTabBar({
+    required this.current,
+    required this.onChanged,
+    required this.bookColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: const BoxDecoration(
+        border: Border(
+          bottom: BorderSide(color: AppTheme.rule, width: 1),
+        ),
+      ),
+      child: Row(
+        children: [
+          _Tab(label: 'TEXT', selected: current == _ReaderTab.text,
+              onTap: () => onChanged(_ReaderTab.text), color: bookColor),
+          _Tab(label: 'SUMMARY', selected: current == _ReaderTab.summary,
+              onTap: () => onChanged(_ReaderTab.summary), color: bookColor),
+        ],
+      ),
+    );
+  }
+}
+
+class _Tab extends StatelessWidget {
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+  final Color color;
+
+  const _Tab({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: GestureDetector(
+        onTap: onTap,
+        behavior: HitTestBehavior.opaque,
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            border: Border(
+              bottom: BorderSide(
+                color: selected ? color : Colors.transparent,
+                width: 2,
+              ),
+            ),
+          ),
+          child: Text(
+            label,
+            style: AppTheme.label.copyWith(
+              color: selected ? AppTheme.ink : AppTheme.inkSoft,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// The SUMMARY tab body — masthead (theme, title, author·year,
+/// ~min read), the hand-written editorial pitch, and a chapter
+/// index if the book has one. No async loading.
+class _SummaryBody extends StatelessWidget {
+  final Book book;
+  final BookSummary summary;
+
+  const _SummaryBody({required this.book, required this.summary});
+
+  @override
+  Widget build(BuildContext context) {
+    final minutes = (book.wordCount / 220).round();
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Masthead — same shape as the reader's TEXT masthead so
+          // the two tabs feel like the same screen.
+          Container(height: 4, width: 48, color: book.color),
+          const SizedBox(height: 16),
+          Text('SUMMARY',
+              style: AppTheme.label.copyWith(color: AppTheme.inkSoft)),
+          const SizedBox(height: 12),
+          Text(
+            book.title,
+            style: const TextStyle(
+              fontSize: 32,
+              fontWeight: FontWeight.w800,
+              height: 1.1,
+              letterSpacing: -1,
+              color: AppTheme.ink,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            '${book.author.toUpperCase()}  ·  ${book.year}',
+            style: AppTheme.label.copyWith(color: AppTheme.inkSoft),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            '~$minutes MIN READ  ·  ${(book.wordCount / 1000).toStringAsFixed(0)}K WORDS',
+            style: AppTheme.labelSoft,
+          ),
+          const SizedBox(height: 24),
+          Container(height: 1, color: AppTheme.rule),
+          const SizedBox(height: 24),
+          // The body of the summary — plain prose, line height
+          // matched to the reader body. No drop cap (that's a
+          // book-text decoration; a pitch doesn't earn it).
+          Text(
+            summary.body,
+            style: const TextStyle(
+              fontSize: 17,
+              height: 1.7,
+              color: AppTheme.ink,
+              fontWeight: FontWeight.w400,
+              letterSpacing: 0.1,
+            ),
+          ),
+          if (summary.chapters.isNotEmpty) ...[
+            const SizedBox(height: 32),
+            Container(height: 1, color: AppTheme.rule),
+            const SizedBox(height: 24),
+            Text('CHAPTERS',
+                style: AppTheme.label.copyWith(color: AppTheme.inkSoft)),
+            const SizedBox(height: 12),
+            // Numbered chapter index in mono. Each row is a tappable
+            // surface that closes the SUMMARY tab and opens the
+            // TEXT tab — but jumping to a specific chapter from
+            // here is a future feature; for now the rows are
+            // visual only (still tappable, with a subtle feedback).
+            for (var i = 0; i < summary.chapters.length; i++)
+              _ChapterIndexRow(
+                number: '${(i + 1).toString().padLeft(2, '0')}',
+                title: summary.chapters[i],
+              ),
+          ],
+          const SizedBox(height: 80),
+        ],
+      ),
+    );
+  }
+}
+
+class _ChapterIndexRow extends StatelessWidget {
+  final String number;
+  final String title;
+  const _ChapterIndexRow({required this.number, required this.title});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 32,
+            child: Text(number, style: AppTheme.label),
+          ),
+          Expanded(
+            child: Text(
+              title,
+              style: AppTheme.label.copyWith(color: AppTheme.ink),
+            ),
+          ),
+        ],
       ),
     );
   }
