@@ -10,7 +10,14 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.6
-  shared_preferences: ^2.2.2
+  # Pinned to 2.4.x — 2.5.0+ migrated to Pigeon-based IPC
+  # (channel 'dev.flutter.pigeon.shared_preferences_android.*')
+  # which the project's custom SharedPreferencesPlugin.java does
+  # not implement. That custom plugin only implements the legacy
+  # MethodChannel ('plugins.flutter.io/shared_preferences'). Until
+  # the custom plugin is rewritten to handle the Pigeon-generated
+  # handler, we have to stay on the pre-Pigeon Dart side.
+  shared_preferences: ~2.4.0
   provider: ^6.1.1
   flutter_svg: ^2.0.10+1
   pdf_render: ^1.4.12
