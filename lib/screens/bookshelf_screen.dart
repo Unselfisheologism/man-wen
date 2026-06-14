@@ -82,8 +82,14 @@ class _BookshelfScreenState extends State<BookshelfScreen> {
         SnackBar(
           content: Text('COULD NOT OPEN BOOK  ·  $e',
               style: AppTheme.label),
-          backgroundColor: AppTheme.ink,
-          duration: const Duration(seconds: 4),
+          // Lighter background than AppTheme.ink (#1A1A1A) — the previous
+          // near-black SnackBar could be perceived as a "thick black
+          // covering" on the bookshelf after pop. Surface 2 is the
+          // theme's elevated card surface, which reads as a darker cream
+          // here — visible enough to be noticed, not so dark it looks
+          // like an overlay artifact.
+          backgroundColor: AppTheme.surface,
+          duration: const Duration(seconds: 2),
         ),
       );
       // Also report to the dart crash log so the user can find it

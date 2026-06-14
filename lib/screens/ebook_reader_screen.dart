@@ -116,7 +116,7 @@ class _EbookReaderScreenState extends State<EbookReaderScreen> {
                 content: Text('First lines copied to clipboard',
                     style: AppTheme.label),
                 duration: Duration(seconds: 2),
-                backgroundColor: AppTheme.ink,
+                backgroundColor: AppTheme.surface,
               ),
             );
           }
@@ -167,13 +167,6 @@ class _EbookReaderScreenState extends State<EbookReaderScreen> {
                 _ReaderBottomBar(
                   book: widget.book,
                   progress: _progress,
-                  onTapProgress: () {
-                    // Tapping the progress area opens the menu — that's
-                    // where jump-to-top / jump-to-bottom live. Tap-to-seek
-                    // (jump to a specific percentage based on tap position)
-                    // is a future enhancement.
-                    _showMenu();
-                  },
                 ),
               ],
             );
@@ -356,57 +349,68 @@ class _Paragraph extends StatelessWidget {
 /// The middle progress bar tints the book's color so it matches the
 /// rest of the editorial system. The 3-dot menu is in the top bar; the
 /// bottom bar is for visual progress only.
+///
+/// IMPORTANT: this bar has an explicit `color: AppTheme.paper` on the
+/// background. Without it, the Container is transparent and the
+/// GestureDetector that used to wrap it (default behavior:
+/// HitTestBehavior.deferToChild) was rendering as a near-black
+/// ghost strip on some Android versions after the reader was popped.
+/// Keeping the bar opaque with the paper color matches the rest of
+/// the app's editorial system and prevents that artifact.
 class _ReaderBottomBar extends StatelessWidget {
   final Book book;
   final double progress;
-  final VoidCallback onTapProgress;
 
   const _ReaderBottomBar({
     required this.book,
     required this.progress,
-    required this.onTapProgress,
   });
 
   @override
   Widget build(BuildContext context) {
     final pct = (progress * 100).round();
-    return GestureDetector(
-      onTap: onTapProgress,
-      child: Container(
-        decoration: const BoxDecoration(
-          border: Border(
-            top: BorderSide(color: AppTheme.rule, width: 1),
+    return Container(
+      // Explicit paper background so the bar is never transparent.
+      // (Was previously wrapped in a GestureDetector with a transparent
+      // Container child — that combination left a dark strip on the
+      // bookshelf after the reader was popped, on some Android builds.)
+      // Note: color lives inside the BoxDecoration — Container doesn't
+      // allow both `color:` and `decoration:` to be set at the same time.
+      padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
+      decoration: const BoxDecoration(
+        color: AppTheme.paper,
+        border: Border(
+          top: BorderSide(color: AppTheme.rule, width: 1),
+        ),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('${book.wordCount} WORDS',
+                  style: AppTheme.labelSoft),
+              Text('$pct%', style: AppTheme.data),
+            ],
           ),
-        ),
-        padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('${book.wordCount} WORDS',
-                    style: AppTheme.labelSoft),
-                Text('$pct%', style: AppTheme.data),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Stack(
-              children: [
-                Container(
+          const SizedBox(height: 8),
+          Stack(
+            children: [
+              Container(
+                height: 2,
+                color: AppTheme.rule,
+              ),
+              FractionallySizedBox(
+                widthFactor: progress.clamp(0.0, 1.0),
+                child: Container(
                   height: 2,
-                  color: AppTheme.rule,
+                  color: book.color,
                 ),
-                FractionallySizedBox(
-                  widthFactor: progress.clamp(0.0, 1.0),
-                  child: Container(
-                    height: 2,
-                    color: book.color,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
