@@ -33,9 +33,11 @@ class BookTextParser {
   // A line that's ALL CAPS, has 2+ words, is under 80 chars, and
   // doesn't end in punctuation that's typical for sentences
   // (period, exclamation, question mark, closing paren) is treated
-  // as a chapter heading.
+  // as a chapter heading. Note: no apostrophe in the character
+  // class because raw strings don't allow unescaped single quotes
+  // — including one would terminate the string early.
   static final RegExp _chapterLikeAllCaps = RegExp(
-    r'^[\sA-Z0-9IVXLCDM\-\.&:\'"]+$',
+    r'^[\sA-Z0-9IVXLCDM\-.&:"]+$',
   );
 
   // Patterns we explicitly recognise as chapter-style headings,

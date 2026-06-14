@@ -394,8 +394,8 @@ class _BookCard extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
 }
 
 /// 03 // CONTINUE — single row pointing to the last opened book.
@@ -479,6 +479,6 @@ class _ContinueRow extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
 }
