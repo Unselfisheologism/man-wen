@@ -98,6 +98,84 @@ class BookshelfService {
       color: AppTheme.catStats, // teal
       wordCount: 17309,
     ),
+    // ── Books 7–12 (added 2026-06) ─────────────────────────────────
+    // The first six are public-domain and bundled from Project
+    // Gutenberg / Wikisource. These six are still under copyright
+    // and the user supplied the source PDFs — we extract the text
+    // once at build time and ship it as bundled assets so the app
+    // remains fully offline.
+    Book(
+      id: 'the_48_laws_of_power',
+      title: 'The 48 Laws of Power',
+      author: 'Robert Greene',
+      year: 1998,
+      assetPath: 'assets/books/the_48_laws_of_power.txt',
+      blurb:
+          'The laws of power, distilled from three thousand years of history. Read once, read again, read carefully.',
+      theme: 'POWER',
+      color: AppTheme.catWine, // wine
+      wordCount: 237353,
+    ),
+    Book(
+      id: 'thinking_fast_and_slow',
+      title: 'Thinking, Fast and Slow',
+      author: 'Daniel Kahneman',
+      year: 2011,
+      assetPath: 'assets/books/thinking_fast_and_slow.txt',
+      blurb:
+          'Two systems drive how we think. Master both, and you master every conversation you walk into.',
+      theme: 'COGNITION',
+      color: AppTheme.catOlive, // olive
+      wordCount: 190287,
+    ),
+    Book(
+      id: 'rich_dad_poor_dad',
+      title: 'Rich Dad Poor Dad',
+      author: 'Robert Kiyosaki',
+      year: 1997,
+      assetPath: 'assets/books/rich_dad_poor_dad.txt',
+      blurb:
+          'The rich don\'t work for money; they make money work for them. A primer on financial literacy.',
+      theme: 'WEALTH',
+      color: AppTheme.catGold, // gold
+      wordCount: 66437,
+    ),
+    Book(
+      id: 'mastery',
+      title: 'Mastery',
+      author: 'Robert Greene',
+      year: 2012,
+      assetPath: 'assets/books/mastery.txt',
+      blurb:
+          'The path to mastery is long, lonely, and the only one that leads anywhere worth going.',
+      theme: 'MASTERY',
+      color: AppTheme.catPlum, // plum
+      wordCount: 153754,
+    ),
+    Book(
+      id: 'psychology_of_money',
+      title: 'The Psychology of Money',
+      author: 'Morgan Housel',
+      year: 2020,
+      assetPath: 'assets/books/psychology_of_money.txt',
+      blurb:
+          'Wealth is what you don\'t see. It\'s the cars not purchased and the upgrades not made.',
+      theme: 'MONEY',
+      color: AppTheme.catSand, // sand
+      wordCount: 52778,
+    ),
+    Book(
+      id: 'atomic_habits',
+      title: 'Atomic Habits',
+      author: 'James Clear',
+      year: 2018,
+      assetPath: 'assets/books/atomic_habits.txt',
+      blurb:
+          'Tiny changes, remarkable results. The compound interest of self-improvement.',
+      theme: 'HABITS',
+      color: AppTheme.catSage, // sage
+      wordCount: 77334,
+    ),
   ];
 
   /// Look up a book by ID. Returns null if not found.

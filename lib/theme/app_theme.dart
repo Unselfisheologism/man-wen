@@ -57,6 +57,14 @@ class AppTheme {
   static const Color catSetting = Color(0xFF2E3D6B);  // indigo  — controls
   static const Color catStats   = Color(0xFF4A7E9B);  // teal    — analytics
   static const Color catBook    = Color(0xFF5C3D2E);  // umber   — bookshelf (do something better)
+  // Extended bookshelf palette (books 7–12). Same warm/muted
+  // editorial register as the six above.
+  static const Color catWine    = Color(0xFF6B2C39);  // wine      — power
+  static const Color catOlive   = Color(0xFF6B7A3F);  // olive     — cognition
+  static const Color catGold    = Color(0xFF8B6B1F);  // gold      — wealth
+  static const Color catPlum    = Color(0xFF4A2E5C);  // plum      — mastery
+  static const Color catSand    = Color(0xFF8B6B4F);  // sand      — money
+  static const Color catSage    = Color(0xFF6B8B5C);  // sage      — habits
 
   // ── Typography ────────────────────────────────────────────────
   /// Monospaced family for labels, section numbers, data.
